@@ -67,3 +67,45 @@ if( ! function_exists( 'render_input' ) ){
     <?php
   }
 }
+
+function search_member( $key, $search )
+{
+  if( $user_data = wpabcf()->methods->get_members() ) {
+
+    $t_search = trim( $search );
+
+    if( is_array( $user_data ) && isset( $user_data['members'] ) ){
+      foreach( $user_data['members'] as $member ){
+        switch( $key ) {
+          case 'all':
+            if( (
+              isset( $member['personal']['email'] ) && $member['personal']['email'] == $t_search )
+              || ( isset( $member['personal']['primaryPhone'] ) && $member['personal']['primaryPhone'] == $t_search )
+            ){
+              return $member;
+            }
+          break;
+          
+          case 'email':
+            if( $member['personal']['email'] == $t_search ){
+              return $member;
+            }
+          break;
+    
+          case 'phone':
+            if( $member['personal']['primaryPhone'] == $t_search ){
+              return $member;
+            }
+          break;
+        }
+      }
+
+      return $user_data['members'];
+
+      }else{
+        return false;
+      }
+  }else{
+    return false;
+  }
+}

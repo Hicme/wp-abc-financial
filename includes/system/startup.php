@@ -1,6 +1,8 @@
 <?php
 
 namespace system;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 final class StartUp
 {
@@ -10,7 +12,7 @@ final class StartUp
 
   public function __get( $key )
   {
-    if ( in_array( $key, array( 'parser', 'methods' ), true ) ) {
+    if ( in_array( $key, array( 'parser', 'methods', 'logger' ), true ) ) {
       return $this->$key();
     }
   }
@@ -64,5 +66,14 @@ final class StartUp
   public function methods()
   {
     return \system\api\Methods::instance();
+  }
+
+  public function logger( $chanel )
+  {
+    $log_file = P_PATH . 'logs' . DIRECTORY_SEPARATOR . $chanel . '.log';
+    $log = new Logger( $chanel );
+    $log->pushHandler( new StreamHandler( $log_file, Logger::DEBUG ) );
+
+    return $log;
   }
 }

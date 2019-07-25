@@ -1,0 +1,13 @@
+{
+  "authors": [
+    {
+      "name": "Oleh Podmarkov",
+      "homepage": "https://github.com/prosvitco-oleg"
+    }
+  ],
+  "require": {
+    "php": ">=7",
+    "monolog/monolog": "^1.24",
+    "symfony/var-dumper": "^4.2"
+  },
+}
