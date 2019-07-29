@@ -28,6 +28,7 @@ class General
 
   public static function register_options()
   {
+    register_setting( 'p-settings', 'abcf_title', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_id', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_key', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_cNumber', [ __CLASS__, 'sanitize_return' ] );
@@ -38,6 +39,14 @@ class General
       'General Settings',
       [ __CLASS__, 'settings_html' ],
       'p_general_settings'
+    );
+
+    add_settings_field(
+      'id_title',
+      'Location Title',
+      [ __CLASS__, 'id_title_html' ],
+      'p_general_settings',
+      'id_p_general'
     );
 
     add_settings_field(
@@ -83,30 +92,37 @@ class General
     echo '<p>Here you can set up API keys and others.</p>';
   }
 
+  public static function id_title_html()
+  {
+    render_input( [
+      'id'          => 'id_title',
+      'label'       => '',
+      'name'        => 'abcf_title',
+      'value'       => get_option( 'abcf_title', '' ),
+      'description' => 'This title will use on frontend.',
+    ] );
+  }
+
   public static function id_key_html()
   {
-      
-      render_input( [
-          'id'          => 'id_key',
-          'label'       => '',
-          'name'        => 'abcf_id',
-          'value'       => get_option( 'abcf_id', '' ),
-          'description' => 'The application ID for authenticating the request.',
-      ] );
-
+    render_input( [
+      'id'          => 'id_key',
+      'label'       => '',
+      'name'        => 'abcf_id',
+      'value'       => get_option( 'abcf_id', '' ),
+      'description' => 'The application ID for authenticating the request.',
+    ] );
   }
 
   public static function application_key_html()
   {
-      
-      render_input( [
-          'id'          => 'application_key',
-          'label'       => '',
-          'name'        => 'abcf_key',
-          'value'       => get_option( 'abcf_key', '' ),
-          'description' => 'The application key for authenticating the request.',
-      ] );
-
+    render_input( [
+      'id'          => 'application_key',
+      'label'       => '',
+      'name'        => 'abcf_key',
+      'value'       => get_option( 'abcf_key', '' ),
+      'description' => 'The application key for authenticating the request.',
+    ] );
   }
 
   public static function cnumber_key_html()
