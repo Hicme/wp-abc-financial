@@ -145,3 +145,25 @@
     height: 26px;
   }
 }
+#input_filed_search_event {
+  max-width: 190px;
+  width: 100%;
+  text-align: center;
+}
+.cancelBtn{
+  background: #e4e4e4;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.applyBtn{
+  background: #2196F3;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.daterangepicker {
+  z-index: 99999;
+}

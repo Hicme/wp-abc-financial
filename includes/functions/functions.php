@@ -109,3 +109,22 @@ function search_member( $key, $search )
     return false;
   }
 }
+
+function search_events_by_range( array $arg )
+{
+
+  $date1 = strtotime( $arg[0] );
+  $date2 = strtotime( $arg[1] );
+
+  if ( $date1 > $date2 || $date1 === $date2 ) {
+    $valid = $arg[0];
+  } else {
+    $valid = $arg;
+  }
+
+  if ( $events = wpabcf()->methods->get_events( $valid ) ) {
+    return $events;
+  } else {
+    return false;
+  }
+}

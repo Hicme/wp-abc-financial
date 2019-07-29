@@ -25,6 +25,7 @@ class Settings_Pages
   {
     $this->tab_links[ 'general' ] = [ 'title' => __( 'General', 'wpabcf' ), 'callback' => [ '\admin\pages\General', 'render_content' ] ];
     $this->tab_links[ 'apiusers' ] = [ 'title' => __( 'Api Users', 'wpabcf' ), 'callback' => [ '\admin\pages\Users', 'render_content' ] ];
+    $this->tab_links[ 'apievents' ] = [ 'title' => __( 'Api Events', 'wpabcf' ), 'callback' => [ '\admin\pages\Events', 'render_content' ] ];
 
     apply_filters( 'set_tab_links', $this->tab_links );
   }
