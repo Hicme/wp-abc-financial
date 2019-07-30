@@ -9,7 +9,7 @@ class Users
   {
     if( isset( $_REQUEST['is_user_search'] ) ){
       if( wp_verify_nonce( $_REQUEST['user_search_nonce'], 'user_search_nonce_validation') ){
-        dump( search_member( 'all', $_REQUEST['search_user'] ) );
+        dump( search_member( 'memberMisc1', $_REQUEST['search_user'] ) );
       } else {
         echo sprintf( '<h3>%s</h3>', __('Please, update page and try again.', 'wpabcf') );
       }

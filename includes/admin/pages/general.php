@@ -5,19 +5,17 @@ namespace admin\pages;
 class General
 {
   public static function sanitize_return( $value )
-  {  
+  {
     return esc_attr( $value );
   }
 
   public static function sanitize_checkbox( $value )
-  {  
-
+  {
     if( is_null( $value ) ){
       return false;
     }else{
       return esc_attr( $value );
     }
-
   }
 
   public static function render_content()
@@ -127,7 +125,6 @@ class General
 
   public static function cnumber_key_html()
   {
-      
       render_input( [
           'id'          => 'cnumber_key',
           'label'       => '',
@@ -135,12 +132,10 @@ class General
           'value'       => get_option( 'abcf_cNumber', '' ),
           'description' => 'The club number for the requested information.',
       ] );
-
   }
 
   public static function id_debug_html()
   {
-
       render_input( [
           'id'          => 'id_debug',
           'label'       => '',
@@ -150,6 +145,5 @@ class General
           'attributes'  => ( get_option( 'abcf_debug', false ) ? [ 'checked' => 'checked' ] : [] ) ,
           'description' => 'Enable debug mode?',
       ] );
-
   }
 }
