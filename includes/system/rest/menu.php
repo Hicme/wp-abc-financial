@@ -27,15 +27,15 @@ class Menu extends \WP_REST_Controller
   public function get_items( $request )
   {
 
-    if( ! ( $data = nuxt_api()->cache->get( 'main_menu' ) ) ){
+    if( ! ( $data = wpabcf()->cache->get( 'main_menu' ) ) ){
       
       $locations = get_nav_menu_locations();
 
-      if( isset( $locations['primary_navigation'] ) && ( $this->menu_items = wp_get_nav_menu_items( $locations['primary_navigation'] ) ) ){
+      if( isset( $locations['primary_api_navigation'] ) && ( $this->menu_items = wp_get_nav_menu_items( $locations['primary_api_navigation'] ) ) ){
 
         $data = $this->get_menu();
 
-        nuxt_api()->cache->set( 'main_menu', $data );
+        wpabcf()->cache->set( 'main_menu', $data );
 
       }else{
         return [];
@@ -103,14 +103,14 @@ class Menu extends \WP_REST_Controller
   public function clear_cache()
   {
     if( is_admin() && isset( $_POST['nav-menu-data'] ) ){
-      nuxt_api()->cache->delete( 'main_menu' );
+      wpabcf()->cache->delete( 'main_menu' );
     }
   }
 
   public static function register_nav_menus()
   {
     register_nav_menus([
-      'primary_navigation' => __( 'Primary Navigation', 'wpabcf' ),
+      'primary_api_navigation' => __( 'Primary API Navigation', 'wpabcf' ),
     ]);
   }
 
