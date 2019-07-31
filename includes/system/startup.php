@@ -12,7 +12,7 @@ final class StartUp
 
   public function __get( $key )
   {
-    if ( in_array( $key, array( 'parser', 'methods', 'logger' ), true ) ) {
+    if ( in_array( $key, array( 'parser', 'methods', 'logger', 'cache' ), true ) ) {
       return $this->$key();
     }
   }
@@ -42,6 +42,7 @@ final class StartUp
   private function includes()
   {
     \system\Post_Types::init();
+    \system\rest\Menu::instance();
 
     if( $this->is_request( 'cron' ) ){
         new \system\Cron();
@@ -75,5 +76,10 @@ final class StartUp
     $log->pushHandler( new StreamHandler( $log_file, Logger::DEBUG ) );
 
     return $log;
+  }
+
+  public function cache()
+  {
+    return \system\Cache::instance();
   }
 }
