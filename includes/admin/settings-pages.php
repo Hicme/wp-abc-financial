@@ -47,6 +47,10 @@ class Settings_Pages
 
   public function load_tab_class()
   {
+    if( isset( $_GET['page'] ) && $_GET['page'] !== 'wpabcf_settings' ){
+      return;
+    }
+
     if( is_array( $this->tab_links[$this->tab]['callback'] ) && isset( $this->tab_links[$this->tab]['callback'][0] ) && is_object( $this->tab_links[$this->tab]['callback'][0] ) ){
       call_user_func( [ $this->tab_links[$this->tab]['callback'][0], $this->tab_links[$this->tab]['callback'][1] ] );
     }else{

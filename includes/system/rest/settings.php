@@ -38,6 +38,9 @@ class Settings extends \WP_REST_Controller
       $data['show_sidebar_on_archive'] = boolval( get_option( 'sidebar_settings', false ) );
       $data['show_sidebar_on_single'] = boolval( get_option( 'single_post_sidebar', false ) );
       $data['front_page'] = get_option( 'page_on_front', false );
+      $data['logo'] = get_option( 'abcf_logo', false );
+      $data['screensaver_logo'] = get_option( 'abcf_screensaver_logo', false );
+      $data['home_background'] = get_option( 'abcf_background', false );
 
       wpabcf()->cache->set( 'main_settings', $data );
 

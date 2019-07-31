@@ -164,6 +164,23 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
 .daterangepicker {
   z-index: 99999;
+}
+
+.show-if-value {
+  display: none;
+}
+
+.hide-if-value {
+  display: block;
+}
+
+.has-value .show-if-value {
+  display: block;
+}
+
+.has-value .hide-if-value {
+  display: none;
 }

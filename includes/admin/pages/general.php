@@ -166,54 +166,129 @@ class General
 
   public static function id_logo_html()
   {
+    $val = get_option( 'abcf_logo', '' );
+    $src = '';
+    if( $val ){
+      $image = wp_get_attachment_image_src($val, 'thumbnail');
+      if( $image ){
+        list($src, $width, $height) = $image;
+      }
+    }
+
       ?>
-      <div class="image_wrapper">
+      <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
         <?php
           render_input( [
             'id'          => 'id_logo',
             'type'        => 'hidden',
             'label'       => '',
             'name'        => 'abcf_logo',
-            'value'       => get_option( 'abcf_logo', '' ),
+            'value'       => $val,
+            'attributes'  => [ 'data-name' => 'settings' ]
           ] );
         ?>
-        <img src="<?php echo P_URL_FOLDER . '/assets/images/image-placeholder.jpg' ?>" alt="logo" width="150px" height="150px" />
+        <div class="hide-if-value">
+          <p>
+            <?php _e( 'No image', 'wpabcf' ); ?>
+          </p>
+          <p>
+            <a data-name="add" class="acf-button button" href="#">
+              <?php _e( 'Add image', 'wpabcf' ); ?>
+            </a>
+          </p>
+        </div>
+        <div class="show-if-value">
+          <img data-name="image" src="<?php echo $src; ?>" alt="logo" width="150px" height="150px" />
+          <p>
+            <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
+          </p>
+        </div>
       </div>
       <?php
   }
 
   public static function id_sreensaver_logo_html()
   {
+    $val = get_option( 'abcf_screensaver_logo', '' );
+    $src = '';
+    if( $val ){
+      $image = wp_get_attachment_image_src($val, 'thumbnail');
+      if( $image ){
+        list($src, $width, $height) = $image;
+      }
+    }
+
       ?>
-      <div class="image_wrapper">
+      <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
         <?php
           render_input( [
             'id'          => 'id_sreensaver_logo',
             'type'        => 'hidden',
             'label'       => '',
             'name'        => 'abcf_screensaver_logo',
-            'value'       => get_option( 'abcf_screensaver_logo', '' ),
+            'value'       => $val,
+            'attributes'  => [ 'data-name' => 'settings' ]
           ] );
         ?>
-        <img src="<?php echo P_URL_FOLDER . '/assets/images/image-placeholder.jpg' ?>" alt="logo" width="150px" height="150px" />
+        <div class="hide-if-value">
+          <p>
+            <?php _e( 'No image', 'wpabcf' ); ?>
+          </p>
+          <p>
+            <a data-name="add" class="acf-button button" href="#">
+              <?php _e( 'Add image', 'wpabcf' ); ?>
+            </a>
+          </p>
+        </div>
+        <div class="show-if-value">
+          <img data-name="image" src="<?php echo $src; ?>" alt="logo" width="150px" height="150px" />
+          <p>
+            <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
+          </p>
+        </div>
       </div>
       <?php
   }
 
   public static function id_background_html()
   {
+    $val = get_option( 'abcf_background', '' );
+    $src = '';
+    if( $val ){
+      $image = wp_get_attachment_image_src($val, 'thumbnail');
+      if( $image ){
+        list($src, $width, $height) = $image;
+      }
+    }
+
       ?>
-      <div class="image_wrapper">
+      <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
         <?php
           render_input( [
             'id'          => 'id_background',
             'type'        => 'hidden',
             'label'       => '',
             'name'        => 'abcf_background',
-            'value'       => get_option( 'abcf_background', '' ),
+            'value'       => $val,
+            'attributes'  => [ 'data-name' => 'settings' ]
           ] );
         ?>
-        <img src="<?php echo P_URL_FOLDER . '/assets/images/image-placeholder.jpg' ?>" alt="logo" width="150px" height="150px" />
+        <div class="hide-if-value">
+          <p>
+            <?php _e( 'No image', 'wpabcf' ); ?>
+          </p>
+          <p>
+            <a data-name="add" class="acf-button button" href="#">
+              <?php _e( 'Add image', 'wpabcf' ); ?>
+            </a>
+          </p>
+        </div>
+        <div class="show-if-value">
+          <img data-name="image" src="<?php echo $src; ?>" alt="logo" width="150px" height="150px" />
+          <p>
+            <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
+          </p>
+        </div>
       </div>
       <?php
   }
@@ -237,8 +312,9 @@ class General
       <script type="text/javascript">
       jQuery(document).ready(function($){
           var custom_uploader;
-          $('#upload_image_button').click(function(e) {
+          $('[data-name="add"]').click(function(e) {
               e.preventDefault();
+              var ths = $(this);
               //If the uploader object has already been created, reopen the dialog
               if (custom_uploader) {
                   custom_uploader.open();
@@ -255,10 +331,20 @@ class General
               //When a file is selected, grab the URL and set it as the text field's value
               custom_uploader.on('select', function() {
                   attachment = custom_uploader.state().get('selection').first().toJSON();
-                  $('#upload_image').val(attachment.url);
+                  var parent = ths.parents('.image_wrapper');
+                  parent.addClass('has-value');
+                  parent.find('[data-name="settings"]').val(attachment.id);
+                  parent.find('img[data-name="image"]').attr('src', attachment.url);
               });
               //Open the uploader dialog
               custom_uploader.open();
+          });
+          $('[data-name="remove"]').click(function(e) {
+            e.preventDefault();
+            var parent = $(this).parents('.image_wrapper');
+            parent.removeClass('has-value');
+            parent.find('[data-name="settings"]').val('');
+            parent.find('[data-name="image"]').attr('src', '');
           });
       });
       </script>
