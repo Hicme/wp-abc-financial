@@ -63,6 +63,7 @@ class Menu extends \WP_REST_Controller
             'url'       => str_replace( get_site_url(), '', $item->url ),
             'menu_type' => $item->object,
             'target'    => $item->target,
+            'actions'   => $item->xfn,
             'classes'   => implode( ' ', $item->classes ),
             'submenu' => ! boolval( $children ),
             'children' => $children,
@@ -90,6 +91,7 @@ class Menu extends \WP_REST_Controller
             'url'       => str_replace( get_site_url(), '', $item->url ),
             'menu_type' => $item->object,
             'target'    => $item->target,
+            'actions'   => $item->xfn,
             'classes'   => implode( ' ', $item->classes ),
             'children' => $this->get_children( $item )
           ];
