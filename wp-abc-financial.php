@@ -26,6 +26,10 @@ if ( ! defined( 'P_URL_FOLDER' ) ) {
   define( 'P_URL_FOLDER', plugin_dir_url( __FILE__ ) );
 }
 
+if( ! defined( 'REST_NAMESPASE' ) ) {
+  define( 'REST_NAMESPASE', 'nuxt/v1' );
+}
+
 register_activation_hook(__FILE__, 'p_activate');
 
 register_deactivation_hook( __FILE__, 'p_deactivate' );
