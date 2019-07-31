@@ -22,6 +22,9 @@ final class StartUp
     $this->includes();
 
     do_action( 'p_loaded' );
+
+    add_filter( 'allowed_http_origins', [ $this, 'add_allowed_origins' ] );
+    add_action('init', [$this, 'add_cors_http_header']);
   }
 
   public function is_request( $type )
@@ -43,6 +46,7 @@ final class StartUp
   {
     \system\Post_Types::init();
     \system\rest\Menu::instance();
+    \system\rest\Settings::instance();
 
     if( $this->is_request( 'cron' ) ){
         new \system\Cron();
@@ -55,6 +59,20 @@ final class StartUp
     if( $this->is_request( 'admin' ) ){
         new \admin\Admin_Startup();
     }
+  }
+
+  public function add_allowed_origins( $origins )
+  {
+      $origins[] = 'http://localhost:3000';
+      $origins[] = 'https://localhost:3000';
+      return $origins;
+  }
+
+  public function add_cors_http_header()
+  {
+    header("Access-Control-Allow-Methods: GET, PUT, POST, DELETE");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Action, Authorization, multipart/form-data");
+    header("Access-Control-Allow-Credentials: true");
   }
 
 
