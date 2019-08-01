@@ -12,9 +12,16 @@ trait Calendar
       $date_range = $eventDateRange;
     }
 
-    $this->set_method( 'GET' );
-    $this->set_request_type( 'calendars/events?eventDateRange=' . $date_range );
-    return $this->get_responce();
+    // $data = get_transient( 'api/calendar' );
+
+    // if( !$data ){
+      $this->set_method( 'GET' );
+      $this->set_request_type( 'calendars/events?eventDateRange=' . $date_range );
+      $data = $this->get_responce();
+    //   set_transient( 'api/calendar', $data, 10800 );
+    // }
+
+    return $data;
   }
 
   public function subscribe_to_event( $event_id, $member_id )

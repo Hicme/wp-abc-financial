@@ -30,6 +30,9 @@ class General
     wp_enqueue_media();
 
     register_setting( 'p-settings', 'abcf_title', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_location', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_presearch', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_fornt_password', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_id', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_key', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_cNumber', [ __CLASS__, 'sanitize_return' ] );
@@ -48,8 +51,32 @@ class General
 
     add_settings_field(
       'id_title',
-      'Location Title',
+      'Site Title',
       [ __CLASS__, 'id_title_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_location',
+      'Location',
+      [ __CLASS__, 'id_location_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_preshearch',
+      'Pre-populated search',
+      [ __CLASS__, 'id_preshearch_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_password',
+      'Admin front password',
+      [ __CLASS__, 'id_password_html' ],
       'p_general_settings',
       'id_p_general'
     );
@@ -137,6 +164,39 @@ class General
       'name'        => 'abcf_title',
       'value'       => get_option( 'abcf_title', '' ),
       'description' => 'This title will use on frontend.',
+    ] );
+  }
+
+  public static function id_location_html()
+  {
+    render_input( [
+      'id'          => 'id_location',
+      'label'       => '',
+      'name'        => 'abcf_location',
+      'value'       => get_option( 'abcf_location', '' ),
+      'description' => 'This location name will be used in Events.',
+    ] );
+  }
+
+  public static function id_preshearch_html()
+  {
+    render_input( [
+      'id'          => 'id_preshearch',
+      'label'       => '',
+      'name'        => 'abcf_presearch',
+      'value'       => get_option( 'abcf_presearch', '' ),
+      'description' => 'This will be used like pre-entered search in Schedule Search.',
+    ] );
+  }
+
+  public static function id_password_html()
+  {
+    render_input( [
+      'id'          => 'id_password',
+      'label'       => '',
+      'name'        => 'abcf_fornt_password',
+      'value'       => get_option( 'abcf_fornt_password', '' ),
+      'description' => 'This password will be used on frontend.',
     ] );
   }
 
@@ -365,10 +425,10 @@ class General
     ?>
       <script type="text/javascript">
       jQuery(document).ready(function($){
-          var custom_uploader;
           $('[data-name="add"]').click(function(e) {
               e.preventDefault();
-              var ths = $(this);
+              var custom_uploader;
+              let ths = $(this);
               //If the uploader object has already been created, reopen the dialog
               if (custom_uploader) {
                   custom_uploader.open();
@@ -384,8 +444,8 @@ class General
               });
               //When a file is selected, grab the URL and set it as the text field's value
               custom_uploader.on('select', function() {
+                let parent = ths.parents('.image_wrapper');
                   attachment = custom_uploader.state().get('selection').first().toJSON();
-                  var parent = ths.parents('.image_wrapper');
                   parent.addClass('has-value');
                   parent.find('[data-name="settings"]').val(attachment.id);
                   parent.find('[data-name="image"]').attr('src', attachment.url);

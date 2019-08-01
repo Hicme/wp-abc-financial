@@ -92,20 +92,24 @@ function search_member( string $key, string $search, bool $return_all = false )
   return false;
 }
 
-function search_events_by_range( array $arg )
+function search_events_by_range( $arg )
 {
 
-  $date1 = strtotime( $arg[0] );
-  $date2 = strtotime( $arg[1] );
+  if ( is_array( $arg ) ) {
+    $date1 = strtotime( $arg[0] );
+    $date2 = strtotime( $arg[1] );
 
-  if ( $date1 > $date2 || $date1 === $date2 ) {
-    $valid = $arg[0];
+    if ( $date1 > $date2 || $date1 === $date2 ) {
+      $valid = $arg[0];
+    } else {
+      $valid = $arg;
+    }
   } else {
     $valid = $arg;
   }
 
   if ( $events = wpabcf()->methods->get_events( $valid ) ) {
-    return $events;
+    return $events['events'];
   } else {
     return false;
   }
