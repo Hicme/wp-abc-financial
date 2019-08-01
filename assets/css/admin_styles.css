@@ -184,3 +184,17 @@
 .has-value .hide-if-value {
   display: none;
 }
+
+.video_wrapper {
+  width: 150px;
+  height: 150px;
+  background: #fdfdfd;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video_wrapper img {
+  display: block;
+}

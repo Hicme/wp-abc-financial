@@ -36,6 +36,7 @@ class General
     register_setting( 'p-settings', 'abcf_logo', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_screensaver_logo', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_background', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_video', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_debug', [ __CLASS__, 'sanitize_checkbox' ] );
 
     add_settings_section(
@@ -97,6 +98,14 @@ class General
       'id_background',
       'Site background image',
       [ __CLASS__, 'id_background_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_video',
+      'Site screensaver video',
+      [ __CLASS__, 'id_video_html' ],
       'p_general_settings',
       'id_p_general'
     );
@@ -261,36 +270,81 @@ class General
       }
     }
 
-      ?>
-      <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
-        <?php
-          render_input( [
-            'id'          => 'id_background',
-            'type'        => 'hidden',
-            'label'       => '',
-            'name'        => 'abcf_background',
-            'value'       => $val,
-            'attributes'  => [ 'data-name' => 'settings' ]
-          ] );
-        ?>
-        <div class="hide-if-value">
-          <p>
-            <?php _e( 'No image', 'wpabcf' ); ?>
-          </p>
-          <p>
-            <a data-name="add" class="acf-button button" href="#">
-              <?php _e( 'Add image', 'wpabcf' ); ?>
-            </a>
-          </p>
-        </div>
-        <div class="show-if-value">
-          <img data-name="image" src="<?php echo $src; ?>" alt="logo" width="150px" height="150px" />
-          <p>
-            <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
-          </p>
-        </div>
-      </div>
+    ?>
+    <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
       <?php
+        render_input( [
+          'id'          => 'id_background',
+          'type'        => 'hidden',
+          'label'       => '',
+          'name'        => 'abcf_background',
+          'value'       => $val,
+          'attributes'  => [ 'data-name' => 'settings' ]
+        ] );
+      ?>
+      <div class="hide-if-value">
+        <p>
+          <?php _e( 'No image', 'wpabcf' ); ?>
+        </p>
+        <p>
+          <a data-name="add" class="acf-button button" href="#">
+            <?php _e( 'Add image', 'wpabcf' ); ?>
+          </a>
+        </p>
+      </div>
+      <div class="show-if-value">
+        <img data-name="image" src="<?php echo $src; ?>" alt="logo" width="150px" height="150px" />
+        <p>
+          <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
+        </p>
+      </div>
+    </div>
+    <?php
+  }
+
+  public static function id_video_html()
+  {
+    $val = get_option( 'abcf_video', '' );
+    $src = '';
+    if( $val ){
+      $image = wp_get_attachment_image_src($val, 'thumbnail');
+      if( $image ){
+        list($src, $width, $height) = $image;
+      }
+    }
+
+    ?>
+    <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
+      <?php
+        render_input( [
+          'id'          => 'id_video',
+          'type'        => 'hidden',
+          'label'       => '',
+          'name'        => 'abcf_video',
+          'value'       => $val,
+          'attributes'  => [ 'data-name' => 'settings' ]
+        ] );
+      ?>
+      <div class="hide-if-value">
+        <p>
+          <?php _e( 'No video', 'wpabcf' ); ?>
+        </p>
+        <p>
+          <a data-name="add" class="acf-button button" href="#">
+            <?php _e( 'Add image', 'wpabcf' ); ?>
+          </a>
+        </p>
+      </div>
+      <div class="show-if-value">
+        <div class="video_wrapper">
+          <img src="/wp-includes/images/media/video.png" alt="logo" />
+        </div>
+        <p>
+          <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
+        </p>
+      </div>
+    </div>
+    <?php
   }
 
   public static function id_debug_html()
@@ -334,7 +388,7 @@ class General
                   var parent = ths.parents('.image_wrapper');
                   parent.addClass('has-value');
                   parent.find('[data-name="settings"]').val(attachment.id);
-                  parent.find('img[data-name="image"]').attr('src', attachment.url);
+                  parent.find('[data-name="image"]').attr('src', attachment.url);
               });
               //Open the uploader dialog
               custom_uploader.open();
