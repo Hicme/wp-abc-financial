@@ -6,11 +6,13 @@ class General
 {
   public static function sanitize_return( $value )
   {
+    wpabcf()->cache->delete( 'main_settings' );
     return esc_attr( $value );
   }
 
   public static function sanitize_checkbox( $value )
   {
+    wpabcf()->cache->delete( 'main_settings' );
     if( is_null( $value ) ){
       return false;
     }else{
@@ -448,7 +450,9 @@ class General
                   attachment = custom_uploader.state().get('selection').first().toJSON();
                   parent.addClass('has-value');
                   parent.find('[data-name="settings"]').val(attachment.id);
-                  parent.find('[data-name="image"]').attr('src', attachment.url);
+                  if(attachment.sizes){
+                    parent.find('[data-name="image"]').attr('src', attachment.sizes.thumbnail.url);
+                  }
               });
               //Open the uploader dialog
               custom_uploader.open();
