@@ -31,7 +31,7 @@ class Ajax
       }
     }
 
-    wp_send_json_error( [ 'code' => 100, 'message' => 'No user was found.' ], 405 );
+    wp_send_json_error( [ 'code' => 100, 'message' => 'No user was found.' ], 404 );
   }
 
   public function getEvents()
@@ -59,7 +59,7 @@ class Ajax
       }
     }
 
-    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 405 );
+    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 404 );
   }
 
   public function getTodayEvents()
@@ -70,7 +70,7 @@ class Ajax
       wp_send_json_success( [ 'data' => $events ], 200 );
     }
 
-    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 405 );
+    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 404 );
   }
 
   public function getMemberEvents()
@@ -116,7 +116,7 @@ class Ajax
       }
     }
 
-    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 405 );
+    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 404 );
   }
 
   public function checkInUser()
@@ -131,7 +131,7 @@ class Ajax
       }
     }
 
-    wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 405 );
+    wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 409 );
   }
 
   private function filter_by_time( array $locations, int $time )

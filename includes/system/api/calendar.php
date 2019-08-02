@@ -26,6 +26,21 @@ trait Calendar
     return $data;
   }
 
+  public function get_employees( $employe_id )
+  {
+    $request = md5( $employe_id );
+    $data = wpabcf()->cache->get( 'api_employe-' . $request );
+
+    if( !$data ){
+      $this->set_method( 'GET' );
+      $this->set_request_type( 'employees/' . $employe_id );
+      $data = $this->get_responce();
+      wpabcf()->cache->set( 'api_employe-' . $request, $data, 10800 );
+    }
+
+    return $data;
+  }
+
   public function subscribe_to_event( $event_id, $member_id )
   {
     $this->set_method( 'POST' );

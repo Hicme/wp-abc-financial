@@ -123,3 +123,12 @@ function subscribeUser( int $event_id, int $member_id )
     return false;
   }
 }
+
+function getEmployer( $id )
+{
+  if ( $response = wpabcf()->methods->get_employees( $id ) ) {
+    return $response;
+  } else {
+    return false;
+  }
+}
