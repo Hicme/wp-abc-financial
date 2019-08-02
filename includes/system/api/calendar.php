@@ -12,14 +12,16 @@ trait Calendar
       $date_range = $eventDateRange;
     }
 
-    // $data = get_transient( 'api/calendar' );
+    $request = md5( $date_range );
 
-    // if( !$data ){
+    $data = wpabcf()->cache->get( 'api_calendar-' . $request );
+
+    if( !$data ){
       $this->set_method( 'GET' );
       $this->set_request_type( 'calendars/events?eventDateRange=' . $date_range );
       $data = $this->get_responce();
-    //   set_transient( 'api/calendar', $data, 10800 );
-    // }
+      wpabcf()->cache->set( 'api_calendar-' . $request, $data, 10800 );
+    }
 
     return $data;
   }

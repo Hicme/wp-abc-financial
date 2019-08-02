@@ -10,8 +10,13 @@ class Admin_Startup
   public function __construct()
   {
     add_action( 'init', [ $this, 'admin_inits' ] );
+
     add_action( 'admin_head', [ $this, 'admin_menus_reorder' ] );
     add_action( 'admin_menu', [ $this, 'admin_menus' ], 9 );
+
+    add_action('admin_bar_menu', [ $this, 'clear_cache' ], 100);
+
+    add_action( 'init', [ $this, 'detect_clear_cache' ] );
   }
 
   public function admin_inits()
@@ -54,5 +59,37 @@ class Admin_Startup
   {
     add_menu_page( __( 'abcFinancial', 'wpabcf' ), __( 'abcFinancial', 'wpabcf' ), 'manage_wpabcf', 'wpabcf', null, 'dashicons-book-alt', '45' );
     add_submenu_page( 'wpabcf', __( 'Settings', 'wpabcf' ), __( 'Settings', 'wpabcf' ), 'manage_wpabcf', 'wpabcf_settings', [ $this->settings_class, 'render_content' ] );
+  }
+
+  public function clear_cache( $admin_bar )
+  {
+    $admin_bar->add_menu( array(
+      'id'    => 'abc_f',
+      'title' => 'ABC Finansical',
+      'href'  => '/wp-admin/admin.php?page=wpabcf_settings',
+      'meta'  => array(
+        'title' => __( 'ABC Finansical', 'wpabcf' ),
+      ),
+    ));
+
+    $admin_bar->add_menu( array(
+      'id'    => 'abc_cache',
+      'parent' => 'abc_f',
+      'title' => 'Clear Cache',
+      'href'  => add_query_arg( ['abc_nonce' => wp_create_nonce( 'abcf_clear_cahce' ), 'abcf-clear-cahce' => 1], $_SERVER['REQUEST_URI'] ),
+      'meta'  => array(
+          'title' => __( 'Clear Cache',' wpabcf' ),
+          'class' => 'abcf_clear_cache'
+      ),
+    ));
+  }
+
+  public function detect_clear_cache()
+  {
+    if ( isset( $_GET['abcf-clear-cahce'] ) ) {
+      if ( wp_verify_nonce( $_GET['abc_nonce'], 'abcf_clear_cahce' ) ) {
+        wpabcf()->cache->delete_all();
+      }
+    }
   }
 }

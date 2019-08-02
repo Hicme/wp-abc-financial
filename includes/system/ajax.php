@@ -36,9 +36,25 @@ class Ajax
 
   public function getEvents()
   {
-    if ( isset( $_REQUEST['input'] ) && !empty( $_REQUEST['input'] ) ) {
-      $range = explode( ' - ', str_replace( '/', '-', $_REQUEST['input'] ) );
-      if ( $events = search_events_by_range( $range ) ) {
+    $date = isset( $_REQUEST['date'] ) && !empty( $_REQUEST['date'] ) ? strtotime( $_REQUEST['date'] ) : time();
+    $time = isset( $_REQUEST['time'] ) && !empty( $_REQUEST['time'] ) ? intval( sanitize_text_field( $_REQUEST['time'] ) ) : 11;
+    $instructor = isset( $_REQUEST['instructor'] ) && !empty( $_REQUEST['instructor'] ) ? sanitize_text_field( $_REQUEST['instructor'] ) : false;
+    $keyword = isset( $_REQUEST['keyword'] ) && !empty( $_REQUEST['keyword'] ) ? sanitize_text_field( $_REQUEST['keyword'] ) : false;
+
+    if ( $events = search_events_by_range( [ date('Y-m-d', $date ), date('Y-m-d', strtotime( '+1 day', $date ) ) ] ) ) {
+      
+      $events = $this->filter_by_time( $events, $time );
+
+      if ( $instructor ) {
+        $events = $this->filter_by_instructor( $events, $instructor );
+      }
+
+      if ( $keyword ) {
+        $events = $this->filter_by_keyword( $events, $keyword );
+      }
+
+      if ( $events ) {
+        $events = $this->prepare_response( $events );
         wp_send_json_success( [ 'data' => $events ], 200 );
       }
     }
@@ -48,36 +64,10 @@ class Ajax
 
   public function getTodayEvents()
   {
-    $response = [];
-
-    $location_name = get_option( 'abcf_location', '' );
-
     if ( $events = search_events_by_range( [ date('Y-m-d'), date('Y-m-d', strtotime( '+1 day', time() ) ) ] ) ) {
-      foreach( $events as $key => $event ){
-        $location_time = strtotime( $event['eventTimestamp'] );
-        $timestamp = date('l m/d/Y', $location_time );
-        $response[ $timestamp ]['date'] =  $timestamp;
-        $response[ $timestamp ]['events'][$key] = [
-          'eventId' => $event['eventId'],
-          'day' => date( 'm/d/y', $location_time ),
-          'time' => date( 'h:i a', $location_time ),
-          'eventName' => $event['eventName'],
-          'employee' => $event['employeeId'],
-          'location' => $location_name,
-          'duration' => $event['duration'],
-        ];
+      $events = $this->prepare_response( $events );
 
-        if ( $event['members'] ) {
-          foreach( $event['members'] as $member ){
-            $response[ $timestamp ]['events'][$key]['members'][] = $member['memberId'];
-          }
-        } else {
-          $response[ $timestamp ]['events'][$key]['members'] = false;
-        }
-
-      }
-
-      wp_send_json_success( [ 'data' => $response ], 200 );
+      wp_send_json_success( [ 'data' => $events ], 200 );
     }
 
     wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 405 );
@@ -142,6 +132,92 @@ class Ajax
     }
 
     wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 405 );
+  }
+
+  private function filter_by_time( array $locations, int $time )
+  {
+    $response = [];
+    foreach( $locations as $location ){
+      $location_time = date( 'H', strtotime( $location['eventTimestamp'] ) );
+
+      switch( $time ){
+        case 11:
+          if ( $location_time <= 11 ) {
+            $response[] = $location;
+          }
+          break;
+
+        case 14:
+          if ( $location_time > 11 && $location_time < 16 ) {
+            $response[] = $location;
+          }
+          break;
+
+        case 16:
+          if ( $location_time >= 16 ) {
+            $response[] = $location;
+          }
+          break;
+      }
+    }
+
+    return $response;
+  }
+
+  private function filter_by_instructor( array $locations, string $instructor )
+  {
+    $response = [];
+    foreach( $locations as $location ){
+      if ( stripos( strtolower( $location['employeeId'] ), strtolower( $instructor ) ) !== false ) {
+        $response[] = $location;
+      }
+    }
+
+    return $response;
+  }
+
+  private function filter_by_keyword( array $locations, string $keyword )
+  {
+    $response = [];
+    foreach( $locations as $location ){
+      if ( stripos( strtolower( $location['eventName'] ), strtolower( $keyword ) ) !== false ) {
+        $response[] = $location;
+      }
+    }
+
+    return $response;
+  }
+
+  private function prepare_response( array $locations )
+  {
+    $response = [];
+
+    $location_name = get_option( 'abcf_location', '' );
+
+    foreach( $locations as $key => $location ){
+      $location_time = strtotime( $location['eventTimestamp'] );
+      $timestamp = date('l m/d/Y', $location_time );
+      $response[ $timestamp ]['date'] =  $timestamp;
+      $response[ $timestamp ]['events'][$key] = [
+        'eventId' => $location['eventId'],
+        'day' => date( 'm/d/y', $location_time ),
+        'time' => date( 'h:i a', $location_time ),
+        'eventName' => $location['eventName'],
+        'employee' => $location['employeeId'],
+        'location' => $location_name,
+        'duration' => $location['duration'],
+      ];
+
+      if ( $location['members'] ) {
+        foreach( $location['members'] as $member ){
+          $response[ $timestamp ]['events'][$key]['members'][] = $member['memberId'];
+        }
+      } else {
+        $response[ $timestamp ]['events'][$key]['members'] = false;
+      }
+    }
+
+    return $response;
   }
 
 }
