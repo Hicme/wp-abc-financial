@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP ABC Financial Integration
  * Description: Allows you to integrate abc Financial crm with site.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Author: Hicme
  * Author URI: https://github.com/prosvitco-oleg
  * Text Domain: wpabcf
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define plugin constants.
 if ( ! defined( 'P_VERSION' ) ) {
-  define( 'P_VERSION', '0.1.0' );
+  define( 'P_VERSION', '1.0.0' );
 }
 
 if ( ! defined( 'P_PATH' ) ) {

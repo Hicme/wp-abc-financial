@@ -4,6 +4,8 @@ namespace system\api;
 
 class Request{
 
+    protected $debug = false;
+
     /**
      * What we want from API
      *
