@@ -19,14 +19,18 @@
 
       if( $responce = self::check_npm() ){
         ?>
-        <div class="version_console">
-          NPM V: <?php echo $responce; ?>
-        </div>
         <div class="console_button_wrapper">
-          <button type="submit" name="console_action" value="generate-build" class="button button-secondary"><?php _e( 'Generate Build', 'wpabcf' ); ?></button>
-          <button type="submit" name="console_action" value="install" class="button button-secondary"><?php _e( 'Install Modules', 'wpabcf' ); ?></button>
+          <div class="version_console">
+            NPM V: <?php echo $responce; ?>
+          </div>
+          <div class="buttons">
+            <button type="submit" name="console_action" value="generate-build" class="button button-secondary"><?php _e( 'Generate Build', 'wpabcf' ); ?></button>
+            <button type="submit" name="console_action" value="install" class="button button-secondary"><?php _e( 'Install Modules', 'wpabcf' ); ?></button>
+          </div>
         </div>
         <?php
+      }else{
+        '<h3>' . __( "Looks like this serwer don't has node installed.", 'wpabcf' ) . '</h3>';
       }
     ?>
     
