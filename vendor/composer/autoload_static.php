@@ -27,6 +27,10 @@ class ComposerStaticInitc6b658ef45367653870e7facf538aa9f
         array (
             'Monolog\\' => 8,
         ),
+        'C' => 
+        array (
+            'Carbon_Fields\\' => 14,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -49,6 +53,10 @@ class ComposerStaticInitc6b658ef45367653870e7facf538aa9f
         'Monolog\\' => 
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
+        ),
+        'Carbon_Fields\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/htmlburger/carbon-fields/core',
         ),
     );
 

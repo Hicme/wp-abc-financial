@@ -3,6 +3,8 @@
 namespace system;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Carbon_Fields\Container;
+use Carbon_Fields\Field;
 
 final class StartUp
 {
@@ -23,6 +25,7 @@ final class StartUp
 
     do_action( 'p_loaded' );
 
+    add_action( 'after_setup_theme', [ $this, 'load_carbon' ] );
     add_filter( 'allowed_http_origins', [ $this, 'add_allowed_origins' ] );
     add_action('init', [$this, 'add_cors_http_header']);
   }
@@ -47,6 +50,7 @@ final class StartUp
     \system\Post_Types::init();
     \system\rest\Menu::instance();
     \system\rest\Settings::instance();
+    new \system\Carbon();
 
     if( $this->is_request( 'cron' ) ){
         new \system\Cron();
@@ -59,6 +63,11 @@ final class StartUp
     if( $this->is_request( 'admin' ) ){
         new \admin\Admin_Startup();
     }
+  }
+
+  public function load_carbon()
+  {
+    \Carbon_Fields\Carbon_Fields::boot();
   }
 
   public function add_allowed_origins( $origins )
