@@ -7,6 +7,9 @@ class Ajax
 
   public function __construct()
   {
+    add_action( 'wp_ajax_getSelect', [ $this, 'getSelect' ] );
+    add_action( 'wp_ajax_nopriv_getSelect', [ $this, 'getSelect' ] );
+
     add_action( 'wp_ajax_searchUSer', [ $this, 'searchUSer' ] );
     add_action( 'wp_ajax_nopriv_searchUSer', [ $this, 'searchUSer' ] );
 
@@ -21,6 +24,32 @@ class Ajax
 
     add_action( 'wp_ajax_checkInUser', [ $this, 'checkInUser' ] );
     add_action( 'wp_ajax_nopriv_checkInUser', [ $this, 'checkInUser' ] );
+  }
+
+  public function getSelect()
+  {
+    $date = time();
+    $eventsName = [];
+    $eventsEmployee = [];
+
+    if ( $events = search_events_by_range( [ date('Y-m-d', $date ), date('Y-m-d', strtotime( '+30 day', $date ) ) ] ) ) {
+      foreach( $events as $event ) {
+        $eventsName[$event['eventName']] = $event['eventName'];
+
+        if( !empty( $event['employeeId'] ) ){
+          $eventsEmployee[$event['employeeId']] = $event['employeeId'];
+        }
+      }
+
+      $response = [
+        'eventsName' => array_values( $eventsName ),
+        'eventsEmployee' => array_values( $eventsEmployee )
+      ];
+
+      wp_send_json_success( [ 'data' => $response ], 200 );
+    }
+
+    wp_send_json_error( [ 'code' => 100, 'message' => 'No data was found.' ], 404 );
   }
 
   public function searchUSer()
@@ -64,10 +93,20 @@ class Ajax
 
   public function getTodayEvents()
   {
-    if ( $events = search_events_by_range( [ date('Y-m-d'), date('Y-m-d', strtotime( '+1 day', time() ) ) ] ) ) {
-      $events = $this->prepare_response( $events );
+    $keyword = get_option( 'abcf_presearch', '' );
+    $time = 11;
 
-      wp_send_json_success( [ 'data' => $events ], 200 );
+    if ( $events = search_events_by_range( [ date('Y-m-d'), date('Y-m-d', strtotime( '+1 day', time() ) ) ] ) ) {
+      $events = $this->filter_by_time( $events, $time );
+
+      if ( $keyword ) {
+        $events = $this->filter_by_keyword( $events, $keyword );
+      }
+
+      if ( $events ) {
+        $events = $this->prepare_response( $events );
+        wp_send_json_success( [ 'data' => $events ], 200 );
+      }
     }
 
     wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 404 );
