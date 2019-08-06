@@ -62,7 +62,7 @@ class Carbon
               </h3>
               <?php
                 echo $block['content'];
-                if( $item > 0 && $item < $total ){
+                if( $item < $total - 1 ){
                   echo '<hr>';
                 }
             }
