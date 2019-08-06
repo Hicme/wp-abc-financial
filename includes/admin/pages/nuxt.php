@@ -14,7 +14,7 @@ class Nuxt
         <?php
           if( wp_verify_nonce( $_REQUEST['_nonce'], 'console_nonce') ){
             if( $_REQUEST['console_action'] === 'generate-build' ){
-              $output = shell_exec('cd ' . ABSPATH . '/nuxtjs && npm install');
+              $output = shell_exec('cd ' . ABSPATH . '/nuxtjs && npm run generate');
               echo "<pre>$output</pre>";
             }
 
