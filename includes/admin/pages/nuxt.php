@@ -4,7 +4,6 @@ namespace admin\pages;
 
 class Nuxt
 {
-
   public static function exec_comands()
   {
     if( isset( $_REQUEST['_action'] ) && $_REQUEST['_action'] === 'console_commands' ){

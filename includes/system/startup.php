@@ -10,7 +10,7 @@ final class StartUp
 {
 
   use \system\Instance;
-  
+
 
   public function __get( $key )
   {
@@ -27,7 +27,7 @@ final class StartUp
 
     add_action( 'after_setup_theme', [ $this, 'load_carbon' ] );
     add_filter( 'allowed_http_origins', [ $this, 'add_allowed_origins' ] );
-    add_action('init', [$this, 'add_cors_http_header']);
+    add_action( 'init', [ $this, 'add_cors_http_header' ] );
   }
 
   public function is_request( $type )
@@ -44,7 +44,7 @@ final class StartUp
     }
   }
 
-  
+
   private function includes()
   {
     \system\Post_Types::init();
