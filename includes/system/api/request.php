@@ -97,7 +97,7 @@ class Request{
     public function append_headers( $arg = [] )
     {
       foreach( $arg as $key => $val ){
-        $this->headers[] = "{$key}: {$val}";
+        $this->headers[$key] = "{$key}: {$val}";
       }
     }
 
@@ -249,7 +249,7 @@ class Request{
             $httpcode = curl_getinfo( $this->get_curl(), CURLINFO_HTTP_CODE );
 
             if( $this->debug ){
-              $this->debug->debug( 'Response: ' . $this->get_request_type(), [ $responce ] );
+              $this->debug->debug( 'Response: ' . $this->get_request_type(), [ 'method' => self::$method,'headers' => $this->headers, 'response' => $responce ] );
             }
 
             if( ! empty( ( $responce ) ) && $httpcode != 401 && $httpcode != 403 ){

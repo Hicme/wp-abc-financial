@@ -12,7 +12,10 @@ trait Members
       $this->set_method( 'GET' );
       $this->set_request_type( 'members' );
       $data = $this->get_responce();
-      wpabcf()->cache->set( 'api_members', $data, 10800 );
+
+      if( $data ){
+        wpabcf()->cache->set( 'api_members', $data, 10800 );
+      }
     }
 
     return $data;

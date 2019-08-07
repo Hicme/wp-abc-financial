@@ -20,7 +20,10 @@ trait Calendar
       $this->set_method( 'GET' );
       $this->set_request_type( 'calendars/events?eventDateRange=' . $date_range );
       $data = $this->get_responce();
-      wpabcf()->cache->set( 'api_calendar-' . $request, $data, 10800 );
+
+      if( $data ){
+        wpabcf()->cache->set( 'api_calendar-' . $request, $data, 10800 );
+      }
     }
 
     return $data;
@@ -28,14 +31,17 @@ trait Calendar
 
   public function get_employees( $employe_id )
   {
-    $request = md5( $employe_id );
+    $request = $employe_id;
     $data = wpabcf()->cache->get( 'api_employe-' . $request );
 
     if( !$data ){
       $this->set_method( 'GET' );
       $this->set_request_type( 'employees/' . $employe_id );
       $data = $this->get_responce();
-      wpabcf()->cache->set( 'api_employe-' . $request, $data, 10800 );
+
+      if( $data ){
+        wpabcf()->cache->set( 'api_employe-' . $request, $data, 10800 );
+      }
     }
 
     return $data;

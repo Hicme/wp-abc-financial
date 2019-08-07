@@ -36,8 +36,8 @@ class Ajax
       foreach( $events as $event ) {
         $eventsName[$event['eventName']] = $event['eventName'];
 
-        if( !empty( $event['employeeId'] ) ){
-          $eventsEmployee[$event['employeeId']] = $event['employeeId'];
+        if( $event['employer'] ){
+          $eventsEmployee[$event['employeeId']] = $event['employer']['personal']['firstName'] . ' ' . $event['employer']['personal']['lastName'];
         }
       }
 
@@ -137,7 +137,7 @@ class Ajax
                   'day' => date( 'm/d/y', $location_time ),
                   'time' => date( 'h:i a', $location_time ),
                   'eventName' => $event['eventName'],
-                  'employee' => $event['employeeId'],
+                  'employee' => $event['employer']['personal'],
                   'location' => $location_name,
                   'duration' => $event['duration'],
                 ];
@@ -242,7 +242,7 @@ class Ajax
         'day' => date( 'm/d/y', $location_time ),
         'time' => date( 'h:i a', $location_time ),
         'eventName' => $location['eventName'],
-        'employee' => $location['employeeId'],
+        'employee' => $location['employer']['personal'],
         'location' => $location_name,
         'duration' => $location['duration'],
       ];

@@ -109,6 +109,10 @@ function search_events_by_range( $arg )
   }
 
   if ( $events = wpabcf()->methods->get_events( $valid ) ) {
+    foreach($events['events'] as $key => $event){
+      $events['events'][$key]['employer'] = getEmployer( $event['employeeId'] );
+    }
+
     return $events['events'];
   } else {
     return false;
@@ -127,7 +131,10 @@ function subscribeUser( int $event_id, int $member_id )
 function getEmployer( $id )
 {
   if ( $response = wpabcf()->methods->get_employees( $id ) ) {
-    return $response;
+    if( isset( $response['employees'] ) ){
+      return array_shift( $response['employees'] );
+    }
+      return false;
   } else {
     return false;
   }
