@@ -39,7 +39,7 @@ class Carbon
             foreach( $fields['gallery'] as $image ){
               ?>
                 <li class="image-gallery__item col-2">
-                  <?php echo wp_get_attachment_image( $image, 'medium' ); ?>
+                  <?php echo wp_get_attachment_image( $image, 'large' ); ?>
                 </li>
               <?php
             }
