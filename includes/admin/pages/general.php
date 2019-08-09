@@ -38,6 +38,7 @@ class General
     register_setting( 'p-settings', 'abcf_id', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_client_id', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_client_secret', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_authorization', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_key', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_cNumber', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_logo', [ __CLASS__, 'sanitize_return' ] );
@@ -97,6 +98,14 @@ class General
       'id_client_secret',
       'Client Secret',
       [ __CLASS__, 'id_client_secret_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_authorization',
+      'Client Authorization',
+      [ __CLASS__, 'id_authorization_html' ],
       'p_general_settings',
       'id_p_general'
     );
@@ -239,6 +248,16 @@ class General
       'name'        => 'abcf_key',
       'value'       => get_option( 'abcf_key', '' ),
       'description' => 'The application key for authenticating the request.',
+    ] );
+  }
+
+  public static function id_authorization_html()
+  {
+    render_input( [
+      'id'          => 'abcf_authorization',
+      'label'       => '',
+      'name'        => 'abcf_authorization',
+      'value'       => get_option( 'abcf_authorization', '' ),
     ] );
   }
 
