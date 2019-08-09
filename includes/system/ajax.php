@@ -24,6 +24,79 @@ class Ajax
 
     add_action( 'wp_ajax_checkInUser', [ $this, 'checkInUser' ] );
     add_action( 'wp_ajax_nopriv_checkInUser', [ $this, 'checkInUser' ] );
+
+    add_action( 'wp_ajax_processOAuth', [ $this, 'processOAuth' ] );
+    add_action( 'wp_ajax_nopriv_processOAuth', [ $this, 'processOAuth' ] );
+
+    add_action( 'wp_ajax_getLastError', [ $this, 'getLastError' ] );
+    add_action( 'wp_ajax_nopriv_getLastError', [ $this, 'getLastError' ] );
+  }
+
+  public function processOAuth()
+  {
+
+    if( isset( $_REQUEST['code'] ) && !empty( $_REQUEST['code'] ) ){
+      $client_id = get_option( 'abcf_client_id', false );
+      $client_secret = get_option( 'abcf_client_secret', false );
+
+      if( !$client_id || !$client_secret ){
+        $this->throw_error_redirect( 'no_keys', __( 'No client keys added.', 'wpabcf' ) );
+      }
+
+      $url = 'https://api.abcfinancial.com/uaa/oauth/token';
+
+      $args = [
+        'timeout'     => 45,
+        'redirection' => 5,
+        'httpversion' => '1.0',
+        'blocking'    => true,
+        'headers' => [
+          'Accept' => 'application/json',
+          'Content-Type' => 'application/x-www-form-urlencoded',
+          'app_id' => $client_id,
+          'app_key' => $client_secret,
+        ],
+        'body'    => [
+          'grant_type' => 'authorization_code',
+          'code' => $_REQUEST['code'],
+          'redirect_uri' => admin_url( 'admin-ajax.php' ) . '?action=processOAuth',
+        ],
+      ];
+
+      $response = wp_remote_post( $url, $args );
+
+      // проверка ошибки
+      if ( is_wp_error( $response ) ) {
+        $error_message = $response->get_error_message();
+        echo "Error: $error_message";
+      } else {
+        echo 'Response: <pre>';
+        print_r( $response );
+        echo '</pre>';
+      }
+    }
+
+    if( isset( $_REQUEST['error'] ) && $_REQUEST['error'] === 'access_denied' ){
+      $this->throw_error_redirect( 'access_denied', __( 'User denied access.', 'wpabcf' ) );
+    }
+  }
+
+  private function throw_error_redirect( $code, $message )
+  {
+    set_transient( 'oauth_error', $message, 120);
+    wp_redirect( add_query_arg( [ 'error' => $code ], get_option( 'siteurl', false ) ), 300 );
+    exit;
+  }
+
+  public function getLastError()
+  {
+    $error = get_transient( 'oauth_error' );
+    if ( $error ) {
+      delete_transient( 'oauth_error' );
+      wp_send_json_success( [ 'data' => $error ], 200 );
+    }
+    
+    wp_send_json_error( [ 'code' => 100, 'message' => 'No data was found.' ], 404 );
   }
 
   public function getSelect()

@@ -36,6 +36,8 @@ class General
     register_setting( 'p-settings', 'abcf_presearch', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_fornt_password', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_id', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_client_id', [ __CLASS__, 'sanitize_return' ] );
+    register_setting( 'p-settings', 'abcf_client_secret', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_key', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_cNumber', [ __CLASS__, 'sanitize_return' ] );
     register_setting( 'p-settings', 'abcf_logo', [ __CLASS__, 'sanitize_return' ] );
@@ -79,6 +81,22 @@ class General
       'id_password',
       'Admin front password',
       [ __CLASS__, 'id_password_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_client_id',
+      'Client ID',
+      [ __CLASS__, 'id_client_id_html' ],
+      'p_general_settings',
+      'id_p_general'
+    );
+
+    add_settings_field(
+      'id_client_secret',
+      'Client Secret',
+      [ __CLASS__, 'id_client_secret_html' ],
       'p_general_settings',
       'id_p_general'
     );
@@ -221,6 +239,26 @@ class General
       'name'        => 'abcf_key',
       'value'       => get_option( 'abcf_key', '' ),
       'description' => 'The application key for authenticating the request.',
+    ] );
+  }
+
+  public static function id_client_id_html()
+  {
+    render_input( [
+      'id'          => 'abcf_client_id',
+      'label'       => '',
+      'name'        => 'abcf_client_id',
+      'value'       => get_option( 'abcf_client_id', '' ),
+    ] );
+  }
+
+  public static function id_client_secret_html()
+  {
+    render_input( [
+      'id'          => 'abcf_client_secret',
+      'label'       => '',
+      'name'        => 'abcf_client_secret',
+      'value'       => get_option( 'abcf_client_secret', '' ),
     ] );
   }
 
