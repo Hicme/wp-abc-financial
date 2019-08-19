@@ -73,6 +73,7 @@ function search_member( string $key, string $search, bool $return_all = false )
   if( $user_data = wpabcf()->methods->get_members() ) {
 
     $t_search = trim( $search );
+    $p_key = explode( '/', $key );
 
     if( is_array( $user_data ) && isset( $user_data['members'] ) ){
 
@@ -81,8 +82,14 @@ function search_member( string $key, string $search, bool $return_all = false )
       }
 
       foreach( $user_data['members'] as $member ){
-        if( isset( $member['personal'][$key] ) && $member['personal'][$key] == $t_search ){
-          return $member;
+        if( count( $p_key ) > 1 ){
+          if( isset( $member[$p_key[0]][$p_key[1]] ) && $member[$p_key[0]][$p_key[1]] == $t_search ){
+            return $member;
+          }
+        }else{
+          if( isset( $member[$p_key[0]] ) && $member[$p_key[0]] == $t_search ){
+            return $member;
+          }
         }
       }
 
@@ -110,7 +117,9 @@ function search_events_by_range( $arg )
 
   if ( $events = wpabcf()->methods->get_events( $valid ) ) {
     foreach($events['events'] as $key => $event){
-      $events['events'][$key]['employer'] = getEmployer( $event['employeeId'] );
+      if( !empty( $event['employeeId'] ) ){
+        $events['events'][$key]['employer'] = getEmployer( $event['employeeId'] );
+      }
     }
 
     return $events['events'];
@@ -119,7 +128,7 @@ function search_events_by_range( $arg )
   }
 }
 
-function subscribeUser( int $event_id, int $member_id )
+function subscribeUser( $event_id, $member_id )
 {
   if ( $response = wpabcf()->methods->subscribe_to_event( $event_id, $member_id ) ) {
     return $response;

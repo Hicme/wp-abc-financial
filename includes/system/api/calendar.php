@@ -49,8 +49,44 @@ trait Calendar
 
   public function subscribe_to_event( $event_id, $member_id )
   {
-    $this->set_method( 'POST' );
-    $this->set_request_type( "calendars/secured/events/{$event_id}/members/{$member_id}" );
-    return $this->get_responce();
+    $client_id = get_option( 'abcf_client_id', false );
+    $client_secret = get_option( 'abcf_client_secret', false );
+    $app_id = get_option( 'abcf_id', false );
+    $app_key = get_option( 'abcf_key', false );
+    $token = get_transient( 'oauth_user')['tokens']['access_token'];
+    $club_number = get_option( 'abcf_cNumber', null );
+
+    if( !$client_id || !$client_secret || !$app_id || !$app_key || !$token ){
+      return false;
+    }
+
+    $url = "https://api.abcfinancial.com/rest/{$club_number}/calendars/secured/events/{$event_id}/members/{$member_id}/attendance";
+
+    $args = [
+      'timeout'     => 45,
+      'redirection' => 5,
+      'httpversion' => '1.0',
+      'blocking'    => true,
+      'method' => "PUT",
+      'body'  => '{ "source": "MEM" }',
+      'headers' => [
+        'Accept' => 'application/json;charset=UTF-8',
+        'Content-Type' => 'application/json',
+        'app_id' => $app_id,
+        'app_key' => $app_key,
+        'client_id' => $client_id,
+        'client_secret' => $client_secret,
+        'token' => $token,
+      ],
+    ];
+
+    $request = wp_remote_request( $url, $args );
+
+    if( isset( $request['response']['code'] ) && $request['response']['code'] == 404 ){
+      return false;
+    }
+
+    wpabcf()->cache->delete_all();
+    return json_decode( $request['body'], true );
   }
 }

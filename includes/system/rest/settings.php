@@ -38,8 +38,7 @@ class Settings extends \WP_REST_Controller
       $data['show_sidebar_on_single'] = boolval( get_option( 'single_post_sidebar', false ) );
       $data['front_page'] = get_option( 'page_on_front', false );
       $data['presearch'] = get_option( 'abcf_presearch', false );
-      $data['client_id'] = get_option( 'abcf_client_id', false );
-      $data['client_secret'] = get_option( 'abcf_client_secret', false );
+      $data['todayDay'] = date( 'l m/d/Y' );
       $data['site_logo'] = get_option( 'abcf_logo', false ) ? wp_get_attachment_image_src( get_option( 'abcf_logo', false ), 'full' )[0] : false;
       $data['screensaver_logo'] = get_option( 'abcf_screensaver_logo', false ) ? wp_get_attachment_image_src( get_option( 'abcf_screensaver_logo', false ), 'full' )[0] : false;
       $data['home_background'] = get_option( 'abcf_background', false ) ? wp_get_attachment_image_src( get_option( 'abcf_background', false ), 'full' )[0] : false;

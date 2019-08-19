@@ -13,8 +13,14 @@ class Ajax
     add_action( 'wp_ajax_searchUSer', [ $this, 'searchUSer' ] );
     add_action( 'wp_ajax_nopriv_searchUSer', [ $this, 'searchUSer' ] );
 
+    add_action( 'wp_ajax_searchUserById', [ $this, 'searchUserById' ] );
+    add_action( 'wp_ajax_nopriv_searchUserById', [ $this, 'searchUserById' ] );
+
     add_action( 'wp_ajax_getEvents', [ $this, 'getEvents' ] );
     add_action( 'wp_ajax_nopriv_getEvents', [ $this, 'getEvents' ] );
+
+    add_action( 'wp_ajax_getAttendanceEvents', [ $this, 'getAttendanceEvents' ] );
+    add_action( 'wp_ajax_nopriv_getAttendanceEvents', [ $this, 'getAttendanceEvents' ] );
 
     add_action( 'wp_ajax_getTodayEvents', [ $this, 'getTodayEvents' ] );
     add_action( 'wp_ajax_nopriv_getTodayEvents', [ $this, 'getTodayEvents' ] );
@@ -30,50 +36,16 @@ class Ajax
 
     add_action( 'wp_ajax_getLastError', [ $this, 'getLastError' ] );
     add_action( 'wp_ajax_nopriv_getLastError', [ $this, 'getLastError' ] );
+
+    add_action( 'wp_ajax_getLastError', [ $this, 'getLastError' ] );
+    add_action( 'wp_ajax_nopriv_getLastError', [ $this, 'getLastError' ] );
   }
 
   public function processOAuth()
   {
-
     if( isset( $_REQUEST['code'] ) && !empty( $_REQUEST['code'] ) ){
-      $client_id = get_option( 'abcf_client_id', false );
-      $client_secret = get_option( 'abcf_client_secret', false );
-
-      if( !$client_id || !$client_secret ){
-        $this->throw_error_redirect( 'no_keys', __( 'No client keys added.', 'wpabcf' ) );
-      }
-
-      $url = 'https://api.abcfinancial.com/uaa/oauth/token';
-
-      $args = [
-        'timeout'     => 45,
-        'redirection' => 5,
-        'httpversion' => '1.0',
-        'blocking'    => true,
-        'headers' => [
-          'Accept' => 'application/json',
-          'Content-Type' => 'application/x-www-form-urlencoded',
-          'app_id' => $client_id,
-          'app_key' => $client_secret,
-        ],
-        'body'    => [
-          'grant_type' => 'authorization_code',
-          'code' => $_REQUEST['code'],
-          'redirect_uri' => admin_url( 'admin-ajax.php' ) . '?action=processOAuth',
-        ],
-      ];
-
-      $response = wp_remote_post( $url, $args );
-
-      // проверка ошибки
-      if ( is_wp_error( $response ) ) {
-        $error_message = $response->get_error_message();
-        echo "Error: $error_message";
-      } else {
-        echo 'Response: <pre>';
-        print_r( $response );
-        echo '</pre>';
-      }
+      $tokens = $this->try_get_token();
+      $this->success_user_redirect( $this->try_get_userID( $tokens ), $tokens );
     }
 
     if( isset( $_REQUEST['error'] ) && $_REQUEST['error'] === 'access_denied' ){
@@ -81,10 +53,104 @@ class Ajax
     }
   }
 
+  private function try_get_userID( $tokens )
+  {
+    $client_id = get_option( 'abcf_client_id', false );
+    $client_secret = get_option( 'abcf_client_secret', false );
+    $app_id = get_option( 'abcf_id', false );
+    $app_key = get_option( 'abcf_key', false );
+
+    if( !$client_id || !$client_secret || !$app_id || !$app_key ){
+      $this->throw_error_redirect( 'no_keys', __( 'No client keys added.', 'wpabcf' ) );
+    }
+
+    $url = 'https://api.abcfinancial.com/uaa/oauth/validateToken';
+
+    $url = add_query_arg( [
+      'access_token' => $tokens['access_token'],
+      'user' => $app_id,
+    ], $url );
+
+    $args = [
+      'timeout'     => 45,
+      'redirection' => 5,
+      'httpversion' => '1.0',
+      'blocking'    => true,
+      'headers' => [
+        'Accept' => 'application/json',
+        'app_id' => $app_id,
+        'app_key' => $app_key,
+        'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ),
+      ],
+    ];
+
+    $response = wp_remote_post( $url, $args );
+
+    if ( is_wp_error( $response ) ) {
+      $this->throw_error_redirect( 'access_denied', __( 'API return error.', 'wpabcf' ) );
+    } else {
+      return json_decode( $response['body'], true )['oauthMemberId'];
+    }
+  }
+
+  private function try_get_token()
+  {
+    $client_id = get_option( 'abcf_client_id', false );
+    $client_secret = get_option( 'abcf_client_secret', false );
+    $app_id = get_option( 'abcf_id', false );
+    $app_key = get_option( 'abcf_key', false );
+
+    if( !$client_id || !$client_secret || !$app_id || !$app_key ){
+      $this->throw_error_redirect( 'no_keys', __( 'No client keys added.', 'wpabcf' ) );
+    }
+
+    $url = 'https://api.abcfinancial.com/uaa/oauth/token';
+
+    $url = add_query_arg( [
+      'grant_type' => 'authorization_code',
+      'code' => $_REQUEST['code'],
+      'redirect_uri' => admin_url( 'admin-ajax.php' ) . '?action=processOAuth',
+    ], $url );
+
+    $args = [
+      'timeout'     => 45,
+      'redirection' => 5,
+      'httpversion' => '1.0',
+      'blocking'    => true,
+      'headers' => [
+        'Accept' => 'application/json',
+        'app_id' => $app_id,
+        'app_key' => $app_key,
+        'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ),
+      ],
+    ];
+
+    $response = wp_remote_post( $url, $args );
+
+    if ( is_wp_error( $response ) ) {
+      $this->throw_error_redirect( 'access_denied', __( 'API return error.', 'wpabcf' ) );
+    } else {
+
+      return json_decode( $response['body'], true );
+    }
+  }
+
+  private function success_user_redirect( $user_id, $tokens )
+  {
+    $data = [
+      'user_id' => $user_id,
+      'tokens' => $tokens
+    ];
+
+    set_transient( 'oauth_user', $data, 6000);
+    wp_redirect( add_query_arg( [ 'success' => $user_id ], get_option( 'siteurl', false ) ), 303 );
+    exit;
+  }
+
   private function throw_error_redirect( $code, $message )
   {
     set_transient( 'oauth_error', $message, 120);
-    wp_redirect( add_query_arg( [ 'error' => $code ], get_option( 'siteurl', false ) ), 300 );
+    wp_redirect( add_query_arg( [ 'error' => $code ], get_option( 'siteurl', false ) ), 303 );
     exit;
   }
 
@@ -116,7 +182,7 @@ class Ajax
 
       $response = [
         'eventsName' => array_values( $eventsName ),
-        'eventsEmployee' => array_values( $eventsEmployee )
+        'eventsEmployee' => $eventsEmployee
       ];
 
       wp_send_json_success( [ 'data' => $response ], 200 );
@@ -128,12 +194,36 @@ class Ajax
   public function searchUSer()
   {
     if ( isset( $_REQUEST['input'] ) && !empty( $_REQUEST['input'] ) ) {
-      if ( $users = search_member( 'memberMisc1', $_REQUEST['input'] ) ) {
+      if ( $users = search_member( 'personal/memberMisc1', $_REQUEST['input'] ) ) {
         wp_send_json_success( [ 'data' => $users ], 200 );
       }
     }
 
     wp_send_json_error( [ 'code' => 100, 'message' => 'No user was found.' ], 404 );
+  }
+
+  public function searchUserById()
+  {
+    if ( isset( $_REQUEST['input'] ) && !empty( $_REQUEST['input'] ) ) {
+      if ( $users = search_member( 'memberId', $_REQUEST['input'] ) ) {
+        wp_send_json_success( [ 'data' => $users ], 200 );
+      }
+    }
+
+    wp_send_json_error( [ 'code' => 100, 'message' => 'No user was found.' ], 404 );
+  }
+
+  public function getAttendanceEvents()
+  {
+    if ( $events = search_events_by_range( [ date('Y-m-d'), date('Y-m-d', strtotime( '+1 day', time() ) ) ] ) ) {
+
+      if ( $events ) {
+        $events = $this->prepare_response( $events );
+        wp_send_json_success( [ 'data' => $events ], 200 );
+      }
+    }
+
+    wp_send_json_error( [ 'code' => 200, 'message' => 'No events was found.' ], 404 );
   }
 
   public function getEvents()
@@ -213,6 +303,7 @@ class Ajax
                   'employee' => $event['employer']['personal'],
                   'location' => $location_name,
                   'duration' => $event['duration'],
+                  'attendedStatus' => $member['attendedStatus']
                 ];
                 if ( $location_time > $week_end ) {
                   $user_events['next_weeks'][] = $parsed;
@@ -233,9 +324,9 @@ class Ajax
 
   public function checkInUser()
   {
-    if ( isset( $_REQUEST['input'] ) && !empty( $_REQUEST['input'] ) && isset( $_REQUEST['memberId'] ) ) {
-      $event_id = intval( sanitize_text_field( $_REQUEST['input'] ) );
-      $member_id = intval( sanitize_text_field( $_REQUEST['memberId'] ) );
+    if ( isset( $_REQUEST['eventId'] ) && !empty( $_REQUEST['eventId'] ) && isset( $_REQUEST['memberId'] ) ) {
+      $event_id = sanitize_text_field( $_REQUEST['eventId'] );
+      $member_id = sanitize_text_field( $_REQUEST['memberId'] );
       if ( $result = subscribeUser( $event_id, $member_id ) ) {
         wp_send_json_success( [ 'data' => $result ], 200 );
       } else {
@@ -318,11 +409,15 @@ class Ajax
         'employee' => $location['employer']['personal'],
         'location' => $location_name,
         'duration' => $location['duration'],
+        'memberCount' => count( $location['members'] )
       ];
 
       if ( $location['members'] ) {
         foreach( $location['members'] as $member ){
-          $response[ $timestamp ]['events'][$key]['members'][] = $member['memberId'];
+          $response[ $timestamp ]['events'][$key]['members'][] = [
+            'memberId' => $member['memberId'],
+            'attendedStatus' => $member['attendedStatus'],
+          ];
         }
       } else {
         $response[ $timestamp ]['events'][$key]['members'] = false;
