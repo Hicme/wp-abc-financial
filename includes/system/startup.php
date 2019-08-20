@@ -14,7 +14,7 @@ final class StartUp
 
   public function __get( $key )
   {
-    if ( in_array( $key, array( 'parser', 'methods', 'logger', 'cache' ), true ) ) {
+    if ( in_array( $key, array( 'parser', 'methods', 'logger', 'cache', 'email' ), true ) ) {
       return $this->$key();
     }
   }
@@ -108,5 +108,10 @@ final class StartUp
   public function cache()
   {
     return \system\Cache::instance();
+  }
+
+  public function email()
+  {
+    return \system\Email::instance();
   }
 }

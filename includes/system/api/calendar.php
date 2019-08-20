@@ -29,6 +29,13 @@ trait Calendar
     return $data;
   }
 
+  public function get_event( $event_id )
+  {
+    $this->set_method( 'GET' );
+    $this->set_request_type( 'calendars/events/' . $event_id . '?page=1' );
+    return $this->get_responce();
+  }
+
   public function get_employees( $employe_id )
   {
     $request = $employe_id;

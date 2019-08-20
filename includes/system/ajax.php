@@ -34,18 +34,48 @@ class Ajax
     add_action( 'wp_ajax_processOAuth', [ $this, 'processOAuth' ] );
     add_action( 'wp_ajax_nopriv_processOAuth', [ $this, 'processOAuth' ] );
 
+    add_action( 'wp_ajax_processOAuthEmail', [ $this, 'processOAuthEmail' ] );
+    add_action( 'wp_ajax_nopriv_processOAuthEmail', [ $this, 'processOAuthEmail' ] );
+
     add_action( 'wp_ajax_getLastError', [ $this, 'getLastError' ] );
     add_action( 'wp_ajax_nopriv_getLastError', [ $this, 'getLastError' ] );
 
     add_action( 'wp_ajax_getLastError', [ $this, 'getLastError' ] );
     add_action( 'wp_ajax_nopriv_getLastError', [ $this, 'getLastError' ] );
+
+    add_action( 'wp_ajax_sendMemberNotification', [ $this, 'sendMemberNotification' ] );
+    add_action( 'wp_ajax_nopriv_sendMemberNotification', [ $this, 'sendMemberNotification' ] );
   }
 
   public function processOAuth()
   {
     if( isset( $_REQUEST['code'] ) && !empty( $_REQUEST['code'] ) ){
-      $tokens = $this->try_get_token();
-      $this->success_user_redirect( $this->try_get_userID( $tokens ), $tokens );
+      $tokens = $this->try_get_token( [ 'action' => 'processOAuth' ] );
+      $user_id = $this->try_get_userID( $tokens );
+      $redirect = [
+        'login' => $user_id,
+      ];
+
+      $this->success_user_redirect( $redirect, $user_id, $tokens );
+    }
+
+    if( isset( $_REQUEST['error'] ) && $_REQUEST['error'] === 'access_denied' ){
+      $this->throw_error_redirect( 'access_denied', __( 'User denied access.', 'wpabcf' ) );
+    }
+  }
+
+  public function processOAuthEmail()
+  {
+    if( isset( $_REQUEST['code'] ) && !empty( $_REQUEST['code'] ) ){
+
+      $tokens = $this->try_get_token( [ 'action' => 'processOAuthEmail', 'eventId' => $_REQUEST['eventId'] ] );
+      $user_id = $this->try_get_userID( $tokens );
+      $redirect = [
+        'emailNoty' => $user_id,
+        'eventId' => $_REQUEST['eventId']
+      ];
+
+      $this->success_user_redirect( $redirect, $user_id, $tokens );
     }
 
     if( isset( $_REQUEST['error'] ) && $_REQUEST['error'] === 'access_denied' ){
@@ -93,7 +123,7 @@ class Ajax
     }
   }
 
-  private function try_get_token()
+  private function try_get_token( $from_link )
   {
     $client_id = get_option( 'abcf_client_id', false );
     $client_secret = get_option( 'abcf_client_secret', false );
@@ -109,7 +139,7 @@ class Ajax
     $url = add_query_arg( [
       'grant_type' => 'authorization_code',
       'code' => $_REQUEST['code'],
-      'redirect_uri' => admin_url( 'admin-ajax.php' ) . '?action=processOAuth',
+      'redirect_uri' => urlencode( add_query_arg( $from_link, admin_url( 'admin-ajax.php' ) ) ),
     ], $url );
 
     $args = [
@@ -135,7 +165,7 @@ class Ajax
     }
   }
 
-  private function success_user_redirect( $user_id, $tokens )
+  private function success_user_redirect( $redirect, $user_id, $tokens )
   {
     $data = [
       'user_id' => $user_id,
@@ -143,7 +173,7 @@ class Ajax
     ];
 
     set_transient( 'oauth_user', $data, 6000);
-    wp_redirect( add_query_arg( [ 'success' => $user_id ], get_option( 'siteurl', false ) ), 303 );
+    wp_redirect( add_query_arg( $redirect, get_option( 'siteurl', false ) ), 303 );
     exit;
   }
 
@@ -337,6 +367,27 @@ class Ajax
     wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 409 );
   }
 
+  public function sendMemberNotification()
+  {
+    if ( empty( $_POST['email'] ) || empty( $_POST['eventId'] ) || empty( $_POST['memberId'] ) ) {
+      wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 409 );
+    }
+
+    $target_email = sanitize_email( $_POST['email'] );
+
+    $subject = __( 'New Reminder', 'wpabcf' );
+    $headers = [ 'content-type: text/html' ];
+    $attachments = false;
+
+    wpabcf()->email->init();
+
+    $html = get_template_html( P_PATH . 'templates\emails\notification-email.php', [ 'subject' => $subject ] );
+
+    $result = wp_mail( $target_email, $subject, $html, $headers, $attachments );
+
+    wp_send_json_success( [ 'data' => $result ], 200 );
+  }
+
   private function filter_by_time( array $locations, int $time )
   {
     $response = [];
@@ -416,7 +467,8 @@ class Ajax
         foreach( $location['members'] as $member ){
           $response[ $timestamp ]['events'][$key]['members'][] = [
             'memberId' => $member['memberId'],
-            'attendedStatus' => $member['attendedStatus'],
+            'memberData' => search_member( 'memberId', $member['memberId'] ),
+            'attendedStatus' => ( $member['attendedStatus'] == 'Attended' ? true : false ),
           ];
         }
       } else {

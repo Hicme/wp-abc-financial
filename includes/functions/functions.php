@@ -128,6 +128,15 @@ function search_events_by_range( $arg )
   }
 }
 
+function get_event( $id )
+{
+  if( $event = wpabcf()->methods->get_event( $id ) ){
+    return $event['events'][0];
+  }
+
+  return false;
+}
+
 function subscribeUser( $event_id, $member_id )
 {
   if ( $response = wpabcf()->methods->subscribe_to_event( $event_id, $member_id ) ) {
@@ -147,4 +156,19 @@ function getEmployer( $id )
   } else {
     return false;
   }
+}
+
+function get_template_html( $template_path, $args = array() )
+{
+    if ( ! empty( $args ) && is_array( $args ) ) {
+		extract( $args );
+    }
+    
+    if ( ! file_exists( $template_path ) ) {
+        return false;
+    }
+
+    ob_start();
+    include $template_path;
+    return ob_get_clean();
 }
