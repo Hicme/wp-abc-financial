@@ -381,7 +381,9 @@ class Ajax
 
     wpabcf()->email->init();
 
-    $html = get_template_html( P_PATH . 'templates\emails\notification-email.php', [ 'subject' => $subject ] );
+    $html = get_template_html( P_PATH . 'templates/emails/notification-email.php', [ 'subject' => $subject ] );
+
+    var_dump( $target_email, $subject, $html, $headers, $attachments );die();
 
     $result = wp_mail( $target_email, $subject, $html, $headers, $attachments );
 
