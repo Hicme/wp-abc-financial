@@ -35,9 +35,9 @@ class Email
 
     ?>
       <h2 style="text-align: center;">Hello <?php echo $member_name; ?>!</h2>
-      <p style="text-align: center;">Here your reminder for <?php echo $class['eventName']; ?>.</p>
+      <p style="text-align: center;">Here’s your reminder for <?php echo $class['eventName']; ?>.</p>
       <p style="text-align: center; font-family: monospace; font-size: 20px; font-weight: bold; background: #e8f3ff; padding: 15px;"><?php echo date('l m/d/Y', $timestamp ); ?> at <?php echo date('h:i a', $timestamp ); ?></p>
-      <p style="text-align: center; font-size: 15px;">Download <a href="https://apps.apple.com/us/app/6th-sense-fitness-newport/id1465085274" style="color: #39c; font-weight: bold;">6th Sense App</a></p>
+      <p style="text-align: center; font-size: 15px;">Download the <a href="https://apps.apple.com/us/app/6th-sense-fitness-newport/id1465085274" style="color: #39c; font-weight: bold;">6th Sense App</a></p>
     <?php
   }
 

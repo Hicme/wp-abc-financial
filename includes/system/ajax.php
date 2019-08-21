@@ -375,15 +375,16 @@ class Ajax
 
     $target_email = sanitize_email( $_POST['email'] );
 
-    $subject = __( 'New Reminder', 'wpabcf' );
-    $headers = [ 'content-type: text/html' ];
+    $subject = __( 'Class Reminder', 'wpabcf' );
+    $headers = [ 
+      'content-type: text/html',
+      'From: '. get_option( 'blogname', '' ) .' <'. get_option( 'admin_email', '' ) .'>'
+    ];
     $attachments = false;
 
     wpabcf()->email->init();
 
     $html = get_template_html( P_PATH . 'templates/emails/notification-email.php', [ 'subject' => $subject ] );
-
-    var_dump( $target_email, $subject, $html, $headers, $attachments );die();
 
     $result = wp_mail( $target_email, $subject, $html, $headers, $attachments );
 
