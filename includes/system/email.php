@@ -19,7 +19,7 @@ class Email
     if( get_option( 'abcf_logo', false ) ){
       ?>
       <p style="margin-bottom: 0; margin-top: 0;">
-        <?php echo wp_get_attachment_image( get_option( 'abcf_logo', false ), 'medium', false, ['style' => 'border: none; display: inline; font-weight: bold; height: auto; outline: none; text-decoration: none; text-transform: capitalize; font-size: 14px; line-height: 24px; width: 100%; max-width: 300px;' ] ); ?>
+        <?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'medium', false, ['style' => 'border: none; display: inline; font-weight: bold; height: auto; outline: none; text-decoration: none; text-transform: capitalize; font-size: 14px; line-height: 24px; width: 100%; max-width: 300px;' ] ); ?>
       </p>
       <?php
     }
