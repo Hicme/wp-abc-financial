@@ -6,16 +6,57 @@ class Email
 {
   use \system\Instance;
 
-  public function init()
+  public $subject;
+
+  public $header;
+
+  public $footer;
+
+  public $content;
+
+  public $middle;
+
+  public $template_html;
+
+  public $recipient = [];
+
+  public function add_recepient( $recipient )
   {
-    add_action( 'notification_header', [ $this, 'notification_header' ] );
-    add_action( 'notification_content', [ $this, 'notification_content' ] );
-    // add_action( 'notification_middle', [ $this, '' ] );
-    add_action( 'notification_footer', [ $this, 'notification_footer' ] );
+    $this->recipient[] = sanitize_email( $recipient );
   }
 
-  public function notification_header()
+  public function get_recipient()
   {
+    return implode( ', ', apply_filters( 'p_email_recipient', $this->recipient ) );
+  }
+  
+  public function set_subject( $data )
+  {
+    $this->subject = $data;
+  }
+
+  public function get_subject()
+  {
+    return $this->subject;
+  }
+
+  public function set_header( $content )
+  {
+    $this->header = $content;
+  }
+
+  public function get_header()
+  {
+    if ( !empty( $this->header ) ) {
+      return $this->header;
+    } else {
+      return $this->get_default_header();
+    }
+  }
+
+  public function get_default_header()
+  {
+    ob_start();
     if( get_option( 'abcf_logo', false ) ){
       ?>
       <p style="margin-bottom: 0; margin-top: 0;">
@@ -23,26 +64,89 @@ class Email
       </p>
       <?php
     }
+
+    return ob_get_clean();
   }
 
-  public function notification_content()
+  public function set_content( $content )
   {
-    $member_id = sanitize_text_field( $_POST['memberId'] );
-    $event_id = sanitize_text_field( $_POST['eventId'] );
-    $member_name = ( search_member( 'memberId', $member_id ) ? search_member( 'memberId', $member_id )['personal']['firstName'] : '' );
-    $class = get_event( $event_id );
-    $timestamp = strtotime( $class['eventTimestamp'] );
+    $this->content = $content;
+  }
 
+  public function get_content()
+  {
+    return $this->content;
+  }
+
+  public function set_middle( $content )
+  {
+    $this->middle = $content;
+  }
+
+  public function get_middle()
+  {
+    return $this->middle;
+  }
+
+  public function get_footer()
+  {
+    if ( !empty( $this->footer ) ) {
+      return $this->footer;
+    } else {
+      return $this->get_default_footer();
+    }
+  }
+
+  public function get_default_footer()
+  {
+    ob_start();
     ?>
-      <h2 style="text-align: center;">Hello <?php echo $member_name; ?>!</h2>
-      <p style="text-align: center;">Here’s your reminder for <?php echo $class['eventName']; ?>.</p>
-      <p style="text-align: center; font-family: monospace; font-size: 20px; font-weight: bold; background: #e8f3ff; padding: 15px;"><?php echo date('l m/d/Y', $timestamp ); ?> at <?php echo date('h:i a', $timestamp ); ?></p>
-      <p style="text-align: center; font-size: 15px;">Download the <a href="https://apps.apple.com/us/app/6th-sense-fitness-newport/id1465085274" style="color: #39c; font-weight: bold;">6th Sense App</a></p>
+      <p>© <?php echo date('Y') . ' ' . get_option( 'blogname', '' ); ?> All Rights Reserved.</p>
     <?php
+    return ob_get_clean();
   }
 
-  public function notification_footer()
+  public function get_html()
   {
-    echo '<p>© '. date('Y') .' '. get_option( 'abcf_title', '' ) .'. All Rights Reserved.</p>';
+    return get_template_html( $this->get_template(), [
+      'subject' => $this->get_subject(),
+      'header'  => $this->get_header(),
+      'content' => $this->get_content(),
+      'middle'  => $this->get_middle(),
+      'footer'  => $this->get_footer(),
+    ] );
+  }
+
+  public function get_template()
+  {
+    if ( !empty( $this->template_html ) ) {
+      return $this->template_html;
+    } else {
+      return $this->get_default_template_html();
+    }
+  }
+
+  public function get_default_template_html()
+  {
+    return apply_filters( 'p_default_email_template_html', P_PATH . 'templates/emails/notification-email.php' );
+  }
+
+  public function get_headers()
+  {
+    return [ 
+      'content-type: text/html',
+      'From: '. get_option( 'blogname', '' ) .' <'. get_option( 'admin_email', '' ) .'>'
+    ];
+  }
+
+  public function get_attachments()
+  {
+    return false;
+  }
+
+  public function send() {
+    if ( $this->get_recipient() ) {
+      return wp_mail( $this->get_recipient(), $this->get_subject(), $this->get_html(), $this->get_headers(), $this->get_attachments() );
+    }
   }
 }

@@ -1010,7 +1010,7 @@
                 <tr>
                   <td style="padding: 0;">
                     <div class="sc-bdVaJa gilyel" display="block" style="box-sizing: border-box; position: static; border-radius: 0; -webkit-transition: all 300ms cuic-bezier(0.19, 1, 0.22, 1); transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); overflow: inherit; padding: 0rem 3rem 1rem 3rem; margin: 0rem 0rem 0rem 0rem; border-top: none; border-right: none; border-bottom: none; border-left: none; display: block;">
-                      <?php do_action('notification_header'); ?>
+                      <?php echo $header; ?>
                     </div>
                   </td>
                 </tr>
@@ -1022,10 +1022,10 @@
                     <div class="sc-bdVaJa jlPFGn" display="block" style="box-sizing: border-box; position: static; border-radius: 0; -webkit-transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); overflow: inherit; padding: 2rem 2rem 2rem 2rem; margin: 0rem 0rem 0rem 0rem; border-top: none; border-right: none; border-bottom: none; border-left: none; display: block;">
                     <div class="sc-htpNat cpoSvg" color="gray1" scale="1" style="color: #052D49; font-family: America, sans-serif; -webkit-letter-spacing: inherit; -moz-letter-spacing: inherit; -ms-letter-spacing: inherit; letter-spacing: inherit; margin: 0; opacity: 1; position: relative; text-align: left; text-transform: inherit; text-shadow: none; -webkit-transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); -webkit-user-select: inherit; -moz-user-select: inherit; -ms-user-select: inherit; user-select: inherit; font-size: 1rem; font-weight: 400; line-height: 1.5;">
                     <span class="sc-bxivhb eWjzRU" color="gray3" scale="1" size="2" style="color: #4F687A; font-family: America, sans-serif; -webkit-letter-spacing: inherit; -moz-letter-spacing: inherit; -ms-letter-spacing: inherit; letter-spacing: inherit; margin: 0; opacity: 1; position: relative; text-align: inherit; text-transform: inherit; text-shadow: none; -webkit-transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); -webkit-user-select: inherit; -moz-user-select: inherit; -ms-user-select: inherit; user-select: inherit; font-size: 1.3090000000000002rem; font-weight: 400; line-height: 1.25;">
-                      <?php do_action('notification_content'); ?>
+                      <?php echo $content; ?>
                     </span>
                       <div class="sc-bdVaJa dggHpc" display="block" style="box-sizing: border-box; position: static; border-radius: 0; -webkit-transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); overflow: inherit; padding: 0rem 0rem 0rem 0rem; margin: 1.5rem 0rem 1.5rem 0rem; border-top: none; border-right: none; border-bottom: none; border-left: none; display: block;">
-                        <?php do_action('notification_middle'); ?>
+                        <?php echo $middle; ?>
                       </div>
                     </div>
                     </div>
@@ -1037,7 +1037,7 @@
                 <tr>
                     <td style="padding: 0;">
                         <div class="sc-bdVaJa gilyel" display="block" style="box-sizing: border-box; position: static; border-radius: 0; -webkit-transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); transition: all 300ms cubic-bezier(0.19, 1, 0.22, 1); overflow: inherit; padding: 3rem 3rem 3rem 3rem; margin: 0rem 0rem 0rem 0rem; border-top: none; border-right: none; border-bottom: none; border-left: none; display: block;">
-                          <?php do_action('notification_footer'); ?>
+                          <?php echo $footer; ?>
                         </div>
                     </td>
                 </tr>

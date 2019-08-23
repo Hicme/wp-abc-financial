@@ -45,6 +45,9 @@ class Ajax
 
     add_action( 'wp_ajax_sendMemberNotification', [ $this, 'sendMemberNotification' ] );
     add_action( 'wp_ajax_nopriv_sendMemberNotification', [ $this, 'sendMemberNotification' ] );
+
+    add_action( 'wp_ajax_sendMemberCheckIn', [ $this, 'sendMemberCheckIn' ] );
+    add_action( 'wp_ajax_nopriv_sendMemberCheckIn', [ $this, 'sendMemberCheckIn' ] );
   }
 
   public function processOAuth()
@@ -373,22 +376,81 @@ class Ajax
       wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 409 );
     }
 
-    $target_email = sanitize_email( $_POST['email'] );
+    $member_id = sanitize_text_field( $_POST['memberId'] );
+    $event_id = sanitize_text_field( $_POST['eventId'] );
+    $member_name = ( search_member( 'memberId', $member_id ) ? search_member( 'memberId', $member_id )['personal']['firstName'] : '' );
+    $class = get_event( $event_id );
+    $timestamp = strtotime( $class['eventTimestamp'] );
 
-    $subject = __( 'Class Reminder', 'wpabcf' );
-    $headers = [ 
-      'content-type: text/html',
-      'From: '. get_option( 'blogname', '' ) .' <'. get_option( 'admin_email', '' ) .'>'
-    ];
-    $attachments = false;
+    ob_start();
 
-    wpabcf()->email->init();
+    ?>
+      <h2 style="text-align: center;">
+        Hello <?php echo $member_name; ?>!
+      </h2>
+      <p style="text-align: center;">
+        Here’s your reminder for <?php echo $class['eventName']; ?>.
+      </p>
+      <p style="text-align: center; font-family: monospace; font-size: 20px; font-weight: bold; background: #e8f3ff; padding: 15px;">
+        <?php echo date('l m/d/Y', $timestamp ); ?> at <?php echo date('h:i a', $timestamp ); ?>
+      </p>
+      <p style="text-align: center; font-size: 15px;">
+        Download the <a href="https://apps.apple.com/us/app/6th-sense-fitness-newport/id1465085274" style="color: #39c; font-weight: bold;">6th Sense App</a>
+      </p>
+    <?php
 
-    $html = get_template_html( P_PATH . 'templates/emails/notification-email.php', [ 'subject' => $subject ] );
+    $content = ob_get_clean();
 
-    $result = wp_mail( $target_email, $subject, $html, $headers, $attachments );
+    $email = wpabcf()->email;
 
-    wp_send_json_success( [ 'data' => $result ], 200 );
+    $email->add_recepient( $_POST['email'] );
+    $email->set_subject( __( 'Class Reminder', 'wpabcf' ) );
+    $email->set_content( $content );
+    $status = $email->send();
+
+    wp_send_json_success( [ 'data' => $status ], 200 );
+  }
+
+  public function sendMemberCheckIn()
+  {
+    if ( empty( $_POST['eventId'] ) || empty( $_POST['memberId'] ) ) {
+      wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 409 );
+    }
+
+    $member_id = sanitize_text_field( $_POST['memberId'] );
+    $event_id = sanitize_text_field( $_POST['eventId'] );
+    $member = ( search_member( 'memberId', $member_id ) ? search_member( 'memberId', $member_id ) : false );
+    $class = get_event( $event_id );
+    $timestamp = strtotime( $class['eventTimestamp'] );
+
+    ob_start();
+
+    ?>
+      <h2 style="text-align: center;">
+        <?php
+          if ( $member ) {
+            echo $member['personal']['firstName'] . ' ' . $member['personal']['lastName'];
+          }
+        ?>
+      </h2>
+      <p style="text-align: center;">
+        Has enrolled in <?php echo $class['eventName']; ?>.
+      </p>
+      <p style="text-align: center; font-family: monospace; font-size: 20px; font-weight: bold; background: #e8f3ff; padding: 15px;">
+        <?php echo date('l m/d/Y', $timestamp ); ?> at <?php echo date('h:i a', $timestamp ); ?>
+      </p>
+    <?php
+
+    $content = ob_get_clean();
+
+    $email = wpabcf()->email;
+
+    $email->add_recepient( get_option( 'admin_email', '' ) );
+    $email->set_subject( 'New Enroll' );
+    $email->set_content( $content );
+    $status = $email->send();
+
+    wp_send_json_success( [ 'data' => $status ], 200 );
   }
 
   private function filter_by_time( array $locations, int $time )
