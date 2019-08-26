@@ -34,9 +34,6 @@ class Ajax
     add_action( 'wp_ajax_processOAuth', [ $this, 'processOAuth' ] );
     add_action( 'wp_ajax_nopriv_processOAuth', [ $this, 'processOAuth' ] );
 
-    add_action( 'wp_ajax_processOAuthEmail', [ $this, 'processOAuthEmail' ] );
-    add_action( 'wp_ajax_nopriv_processOAuthEmail', [ $this, 'processOAuthEmail' ] );
-
     add_action( 'wp_ajax_getLastError', [ $this, 'getLastError' ] );
     add_action( 'wp_ajax_nopriv_getLastError', [ $this, 'getLastError' ] );
 
@@ -53,32 +50,26 @@ class Ajax
   public function processOAuth()
   {
     if( isset( $_REQUEST['code'] ) && !empty( $_REQUEST['code'] ) ){
-      $tokens = $this->try_get_token( [ 'action' => 'processOAuth' ] );
-      $user_id = $this->try_get_userID( $tokens );
-      $redirect = [
-        'login' => $user_id,
+      $link_redirect = [
+        'action' => 'processOAuth'
       ];
 
-      $this->success_user_redirect( $redirect, $user_id, $tokens );
-    }
+      $parameters = [];
 
-    if( isset( $_REQUEST['error'] ) && $_REQUEST['error'] === 'access_denied' ){
-      $this->throw_error_redirect( 'access_denied', __( 'User denied access.', 'wpabcf' ) );
-    }
-  }
+      foreach( $_REQUEST as $key => $parameter ) {
+        if ( $key != 'action' && $key != 'code' ) {
+          $parameters[ sanitize_text_field( $key ) ] = sanitize_text_field( $parameter );
+        }
+      }
 
-  public function processOAuthEmail()
-  {
-    if( isset( $_REQUEST['code'] ) && !empty( $_REQUEST['code'] ) ){
-
-      $tokens = $this->try_get_token( [ 'action' => 'processOAuthEmail', 'eventId' => $_REQUEST['eventId'] ] );
+      $tokens = $this->try_get_token( array_merge( $link_redirect, $parameters ) );
       $user_id = $this->try_get_userID( $tokens );
+
       $redirect = [
-        'emailNoty' => $user_id,
-        'eventId' => $_REQUEST['eventId']
+        'login' => $user_id
       ];
 
-      $this->success_user_redirect( $redirect, $user_id, $tokens );
+      $this->success_user_redirect( array_merge( $redirect, $parameters ), $user_id, $tokens );
     }
 
     if( isset( $_REQUEST['error'] ) && $_REQUEST['error'] === 'access_denied' ){
@@ -318,8 +309,8 @@ class Ajax
     if ( isset( $_REQUEST['memberId'] ) && !empty( $_REQUEST['memberId'] ) ) {
       $range = [];
       $location_name = get_option( 'abcf_location', '' );
-      $range[] = date('Y-m-d');
-      $range[] = date('Y-m-d', strtotime( '+31 days', time() ));
+      $range[] = date('2019-08-20');
+      $range[] = date('2019-08-21', strtotime( '+31 days', time() ));
       $week_end = strtotime( "next sunday", time() );
 
       if ( $events = search_events_by_range( $range ) ) {
