@@ -336,8 +336,8 @@ class Ajax
     if ( isset( $_REQUEST['memberId'] ) && !empty( $_REQUEST['memberId'] ) ) {
       $range = [];
       $location_name = get_option( 'abcf_location', '' );
-      $range[] = date('2019-08-20');
-      $range[] = date('2019-08-21', strtotime( '+31 days', time() ));
+      $range[] = date('Y-m-d');
+      $range[] = date('Y-m-d', strtotime( '+31 days', time() ));
       $week_end = strtotime( "next sunday", time() );
 
       if ( $events = search_events_by_range( $range ) ) {
