@@ -10,6 +10,9 @@ class Ajax
     add_action( 'wp_ajax_getSelect', [ $this, 'getSelect' ] );
     add_action( 'wp_ajax_nopriv_getSelect', [ $this, 'getSelect' ] );
 
+    add_action( 'wp_ajax_clearUser', [ $this, 'clearUser' ] );
+    add_action( 'wp_ajax_nopriv_clearUser', [ $this, 'clearUser' ] );
+
     add_action( 'wp_ajax_searchUSer', [ $this, 'searchUSer' ] );
     add_action( 'wp_ajax_nopriv_searchUSer', [ $this, 'searchUSer' ] );
 
@@ -31,6 +34,9 @@ class Ajax
     add_action( 'wp_ajax_checkInUser', [ $this, 'checkInUser' ] );
     add_action( 'wp_ajax_nopriv_checkInUser', [ $this, 'checkInUser' ] );
 
+    add_action( 'wp_ajax_enrollInUser', [ $this, 'enrollInUser' ] );
+    add_action( 'wp_ajax_nopriv_enrollInUser', [ $this, 'enrollInUser' ] );
+
     add_action( 'wp_ajax_processOAuth', [ $this, 'processOAuth' ] );
     add_action( 'wp_ajax_nopriv_processOAuth', [ $this, 'processOAuth' ] );
 
@@ -45,6 +51,27 @@ class Ajax
 
     add_action( 'wp_ajax_sendMemberCheckIn', [ $this, 'sendMemberCheckIn' ] );
     add_action( 'wp_ajax_nopriv_sendMemberCheckIn', [ $this, 'sendMemberCheckIn' ] );
+  }
+
+  public function enrollInUser()
+  {
+    if ( isset( $_REQUEST['eventId'] ) && !empty( $_REQUEST['eventId'] ) && isset( $_REQUEST['memberId'] ) ) {
+      $event_id = sanitize_text_field( $_REQUEST['eventId'] );
+      $member_id = sanitize_text_field( $_REQUEST['memberId'] );
+      if ( $result = subscribeToEvent( $event_id, $member_id ) ) {
+        wp_send_json_success( [ 'data' => $result ], 200 );
+      } else {
+        wp_send_json_error( [ 'code' => 301, 'message' => 'Api return error.' ], 405 );
+      }
+    }
+
+    wp_send_json_error( [ 'code' => 300, 'message' => 'Some error happens.' ], 409 );
+  }
+
+  public function clearUser()
+  {
+    delete_transient( 'oauth_user' );
+    wp_send_json_success( [ 'data' => true ], 200 );
   }
 
   public function processOAuth()
@@ -228,8 +255,8 @@ class Ajax
 
   public function searchUserById()
   {
-    if ( isset( $_REQUEST['input'] ) && !empty( $_REQUEST['input'] ) ) {
-      if ( $users = search_member( 'memberId', $_REQUEST['input'] ) ) {
+    if ( isset( $_REQUEST['memberId'] ) && !empty( $_REQUEST['memberId'] ) ) {
+      if ( $users = search_member( 'memberId', $_REQUEST['memberId'] ) ) {
         wp_send_json_success( [ 'data' => $users ], 200 );
       }
     }
@@ -351,7 +378,7 @@ class Ajax
     if ( isset( $_REQUEST['eventId'] ) && !empty( $_REQUEST['eventId'] ) && isset( $_REQUEST['memberId'] ) ) {
       $event_id = sanitize_text_field( $_REQUEST['eventId'] );
       $member_id = sanitize_text_field( $_REQUEST['memberId'] );
-      if ( $result = subscribeUser( $event_id, $member_id ) ) {
+      if ( $result = attendanceUser( $event_id, $member_id ) ) {
         wp_send_json_success( [ 'data' => $result ], 200 );
       } else {
         wp_send_json_error( [ 'code' => 301, 'message' => 'Api return error.' ], 405 );

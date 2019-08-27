@@ -137,9 +137,18 @@ function get_event( $id )
   return false;
 }
 
-function subscribeUser( $event_id, $member_id )
+function attendanceUser( $event_id, $member_id )
 {
-  if ( $response = wpabcf()->methods->subscribe_to_event( $event_id, $member_id ) ) {
+  if ( $response = wpabcf()->methods->attendance_event( $event_id, $member_id ) ) {
+    return $response;
+  } else {
+    return false;
+  }
+}
+
+function subscribeToEvent( $event_id, $member_id )
+{
+  if ( $response = wpabcf()->methods->subscribe_event( $event_id, $member_id ) ) {
     return $response;
   } else {
     return false;
