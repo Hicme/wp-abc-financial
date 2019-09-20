@@ -393,6 +393,52 @@ class General
     <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
       <?php
         render_input( [
+          'id'          => 'id_video',
+          'type'        => 'hidden',
+          'label'       => '',
+          'name'        => 'abcf_background',
+          'value'       => $val,
+          'attributes'  => [ 'data-name' => 'settings' ]
+        ] );
+      ?>
+      <div class="hide-if-value">
+        <p>
+          <?php _e( 'No video', 'wpabcf' ); ?>
+        </p>
+        <p>
+          <a data-name="add" class="acf-button button" href="#">
+            <?php _e( 'Add image', 'wpabcf' ); ?>
+          </a>
+        </p>
+      </div>
+      <div class="show-if-value">
+        <div class="video_wrapper">
+          <img src="/wp-includes/images/media/video.png" alt="logo" />
+        </div>
+        <p>
+          <a data-name="remove" class="acf-button button" href="#"><?php _e( 'Remove image', 'wpabcf' ); ?></a>
+        </p>
+      </div>
+    </div>
+    <?php
+  }
+
+  /*
+  public static function id_background_html()
+  {
+    $val = get_option( 'abcf_background', '' );
+    $src = '';
+    if( $val ){
+      $image = wp_get_attachment_image_src($val, 'thumbnail');
+      if( $image ){
+        list($src, $width, $height) = $image;
+      }
+    }
+
+    ?>
+    <div class="image_wrapper <?php echo( $val ? 'has-value' : '' ); ?>">
+      <?php
+        render_input( [
           'id'          => 'id_background',
           'type'        => 'hidden',
           'label'       => '',
@@ -420,6 +466,7 @@ class General
     </div>
     <?php
   }
+  */
 
   public static function id_video_html()
   {

@@ -41,7 +41,7 @@ class Settings extends \WP_REST_Controller
       $data['client_id'] = get_option( 'abcf_client_id', false );
       $data['site_logo'] = get_option( 'abcf_logo', false ) ? wp_get_attachment_image_src( get_option( 'abcf_logo', false ), 'full' )[0] : false;
       $data['screensaver_logo'] = get_option( 'abcf_screensaver_logo', false ) ? wp_get_attachment_image_src( get_option( 'abcf_screensaver_logo', false ), 'full' )[0] : false;
-      $data['home_background'] = get_option( 'abcf_background', false ) ? wp_get_attachment_image_src( get_option( 'abcf_background', false ), 'full' )[0] : false;
+      $data['home_background'] = get_option( 'abcf_background', false ) ? wp_get_attachment_url( get_option( 'abcf_background', false ), 'full' ) : false;
       $data['screensaver_background'] = get_option( 'abcf_video', false ) ? wp_get_attachment_url( get_option( 'abcf_video', false ), 'full' ) : false;
 
       wpabcf()->cache->set( 'main_settings', $data );
